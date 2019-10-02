@@ -2,4 +2,4 @@
 rm -Rf nginx/static
 cp -R ../web/static/ nginx
 docker build -t od-nginx-image nginx
-docker run --name od-nginx -d -p 80:80 od-nginx-image
+#docker run --name od-nginx -d -p 80:80 od-nginx-image

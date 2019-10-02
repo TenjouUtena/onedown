@@ -1,0 +1,16 @@
+version: '3'
+
+
+services:
+        nginx:
+                image: od-nginx-image
+                ports: 
+                   - 80:80
+                restart: always
+        cassy:
+                image: cassandra:latest
+                volumes:
+                        - /var/lib/cassy:/var/lib/cassandra
+                restart: always
+
+

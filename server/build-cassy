@@ -1,2 +1,0 @@
-#/bin/bash
-docker run --name od-cass -v $(dirname $(pwd))/tmp/cassy:/var/lib/cassandra -d cassandra:latest

@@ -1,2 +1,4 @@
 tmp/
 server/nginx/static/
+backend/pkg/
+backend/bin/
