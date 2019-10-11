@@ -2,3 +2,6 @@ tmp/
 server/nginx/static/
 backend/pkg/
 backend/bin/
+/web/static/lib.wasm
+/web/static/wasm_exec.js
+/onedown.iml
