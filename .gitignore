@@ -7,3 +7,4 @@ backend/bin/
 /onedown.iml
 /.idea/
 main
+backend/src/onedown/__debug_bin
