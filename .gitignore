@@ -5,3 +5,5 @@ backend/bin/
 /web/static/lib.wasm
 /web/static/wasm_exec.js
 /onedown.iml
+/.idea/
+main
