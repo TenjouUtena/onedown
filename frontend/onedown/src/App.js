@@ -45,24 +45,48 @@ class Square extends React.Component {
 
 class Game extends React.Component {
   state = {
-    puzzle: { squares: []}
+    puzzle: { squares: []},
+    gameMessage: "",
+    puzzleInput: ""
   }
 
   componentDidMount() {
      fetch("http://localhost:8080/puzzle/blah/get")
+      .then(res => {
+        if(!res.ok) throw(res)
+      })
       .then(res => res.json())
       .then(
        (result)=>{
+
        this.setState({ puzzle: { squares: result}})})
+      .catch(res => {
+        this.setState({ gameMessage: "Error Loading Puzzle..." });
+        console.log(res)
+      });
+  }
+
+  handlePuzzleInputChange (event) {
+    console.log(this)
+    this.setState({puzzleInput: event.target.value})
   }
 
   render () {
       const {puzzle: {squares}} = this.state;
       return (
       <div className="Game">
-      {squares.map( (t) =>
-        <Square value={t} key={(t.Y*100)+t.X}/>
-      )}
+        <div>
+          <span className="GameMessage" id="GameMessage" ref="GameMessage">{this.state.gameMessage}</span>
+        </div>
+        <div>
+          <span>What x do you want?  </span>
+          <input type='text' value={this.state.puzzleInput} onChange={this.handlePuzzleInputChange}/>
+        </div>
+       <div classname="Grid">
+       {squares.map( (t) =>
+         <Square value={t} key={(t.Y*100)+t.X}/>
+       )}
+       </div>
       </div>
       );}
 }

@@ -104,15 +104,17 @@ func calcclues(p Puzzle) Puzzle {
 	return p
 }
 
-func readpuz(file string) Puzzle {
+func readpuz(file string) (Puzzle, error) {
 
 	var r []Square
+	var p Puzzle
 	wid := make([]byte, 1)
 	hei := make([]byte, 1)
 
 	f, err := os.Open(file)
 	if err != nil {
-		panic(err)
+
+		return p, fmt.Errorf("Error with file: %v", err)
 	}
 
 	// Seek to Width
@@ -141,12 +143,11 @@ func readpuz(file string) Puzzle {
 		}
 	}
 
-	var p Puzzle
 	p.Width = width
 	p.Height = height
 	p.Sqs = r
 
-	return p
+	return p, nil
 
 }
 
@@ -194,11 +195,14 @@ func main() {
 
 	r.Use(cors.Default()) // Needed to allow all API origins.
 	r.GET("/puzzle/:puzid/get", func(c *gin.Context) {
-		p := readpuz(c.Param("puzid") + ".puz")
-		clues := calcclues(p)
+		p, err := readpuz(c.Param("puzid") + ".puz")
 
-		//c.JSON(200, genpuz())
-		c.JSON(200, clues.Sqs)
+		if err != nil {
+			c.JSON(500, gin.H{"Error": err})
+		} else {
+			clues := calcclues(p)
+			c.JSON(200, clues.Sqs)
+		}
 	})
 	r.Run() // listen and serve on 0.0.0.0:8080
 }
