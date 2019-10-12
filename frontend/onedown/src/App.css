@@ -33,6 +33,12 @@
   left: 50px;
 }
 
+.Grid {
+  position: absolute;
+  top: 50px;
+  left: 0px;
+}
+
 .SquareClue {
   position: absolute;
   color: darkgrey;

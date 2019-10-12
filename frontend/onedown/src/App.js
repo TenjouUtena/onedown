@@ -12,6 +12,7 @@ class Square extends React.Component {
     this.setState({value: this.props.value});
   }
 
+
   render() {
 
     const value = this.state.value;
@@ -47,28 +48,46 @@ class Game extends React.Component {
   state = {
     puzzle: { squares: []},
     gameMessage: "",
-    puzzleInput: ""
+    puzzleInput: "Oct1219"
+  }
+
+  constructor() {
+    super();
+
+    this.handlePuzzleInputChange = this.handlePuzzleInputChange.bind(this)
+    this.loadPuzzle = this.loadPuzzle.bind(this)
+    this.handlePuzzleLoad = this.handlePuzzleLoad.bind(this)
+
+  }
+
+  loadPuzzle () {
+    fetch("http://localhost:8080/puzzle/" + this.state.puzzleInput + "/get")
+    .then(res => {
+      if(!res.ok) throw(res);
+      return(res);
+    })
+    .then(res => res.json())
+    .then(jj => {
+      this.setState({ puzzle: { squares: jj}})
+
+    })
+    .catch(res => {
+      this.setState({ gameMessage: "Error Loading Puzzle..." });
+      console.log(res)
+    });
   }
 
   componentDidMount() {
-     fetch("http://localhost:8080/puzzle/blah/get")
-      .then(res => {
-        if(!res.ok) throw(res)
-      })
-      .then(res => res.json())
-      .then(
-       (result)=>{
-
-       this.setState({ puzzle: { squares: result}})})
-      .catch(res => {
-        this.setState({ gameMessage: "Error Loading Puzzle..." });
-        console.log(res)
-      });
+    this.loadPuzzle();
   }
 
   handlePuzzleInputChange (event) {
-    console.log(this)
     this.setState({puzzleInput: event.target.value})
+  }
+
+  handlePuzzleLoad (event) {
+    this.loadPuzzle();
+    this.forceUpdate();
   }
 
   render () {
@@ -81,8 +100,9 @@ class Game extends React.Component {
         <div>
           <span>What x do you want?  </span>
           <input type='text' value={this.state.puzzleInput} onChange={this.handlePuzzleInputChange}/>
+          <input type='button' value="load puzzle" onClick={this.handlePuzzleLoad}/>
         </div>
-       <div classname="Grid">
+       <div className="Grid">
        {squares.map( (t) =>
          <Square value={t} key={(t.Y*100)+t.X}/>
        )}
