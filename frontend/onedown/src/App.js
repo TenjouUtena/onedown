@@ -16,14 +16,28 @@ class Square extends React.Component {
 
     const value = this.state.value;
     var style = {
-       top: value.x*sqsize,
-       left: value.y*sqsize,
+       top: value.Y*sqsize,
+       left: value.X*sqsize,
        width: sqsize-1,
        height: sqsize-1
     };
-    return (
-      <div className="Square" style={style}>
+    let clue;
+    if (value.DrawDown) {
+      clue = <span className="SquareClue" >{value.DownClue}</span>
+    }
+    if (value.DrawAcross) {
+      clue = <span className="SquareClue" >{value.AcrossClue}</span>
+    }
 
+    let black;
+    if (value.Black) {
+      black = "black"
+    } else {
+      black = "white"
+    }
+    return (
+      <div className="Square" style={style} id={black}>
+        {clue}
       </div>
     );
   }
@@ -45,9 +59,9 @@ class Game extends React.Component {
   render () {
       const {puzzle: {squares}} = this.state;
       return (
-      <div>
+      <div className="Game">
       {squares.map( (t) =>
-        <Square value={t} key={(t.y*100)+t.x}/>
+        <Square value={t} key={(t.Y*100)+t.X}/>
       )}
       </div>
       );}

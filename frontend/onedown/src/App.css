@@ -26,3 +26,21 @@
        border:1px;
        border-style: solid;
 }
+
+.Game {
+  position: absolute;
+  top: 50px;
+  left: 50px;
+}
+
+.SquareClue {
+  position: absolute;
+  color: darkgrey;
+  font-size: 11px;
+  top: -1px;
+  left: 2px;
+}
+
+.Square#black {
+  background: #000000;
+}
