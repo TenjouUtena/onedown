@@ -4,18 +4,8 @@ import './App.css';
 var sqsize=40;
 
 class Square extends React.Component {
-  state = {
-  value: {}
-  }
-
-  componentDidMount() {
-    this.setState({value: this.props.value});
-  }
-
-
   render() {
-
-    const value = this.state.value;
+    const value = this.props.value;
     var style = {
        top: value.Y*sqsize,
        left: value.X*sqsize,
@@ -87,7 +77,6 @@ class Game extends React.Component {
 
   handlePuzzleLoad (event) {
     this.loadPuzzle();
-    this.forceUpdate();
   }
 
   render () {
@@ -103,8 +92,8 @@ class Game extends React.Component {
           <input type='button' value="load puzzle" onClick={this.handlePuzzleLoad}/>
         </div>
        <div className="Grid">
-       {squares.map( (t) =>
-         <Square value={t} key={(t.Y*100)+t.X}/>
+       {squares.map( (t, i) =>
+         <Square value={this.state.puzzle.squares[i]} key={(t.Y*100)+t.X}/>
        )}
        </div>
       </div>
