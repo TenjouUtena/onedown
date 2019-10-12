@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"os"
+	"path"
 
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
@@ -58,22 +59,22 @@ func calcAcrossClues(p Puzzle) Puzzle {
 			}
 			if !ss.Black {
 				if i == 0 {
-					curclue += 1
+					curclue++
 					ss.AcrossClue = curclue
 					ss.DrawAcross = true
-					fmt.Printf("ss:%v\n", ss)
+					//fmt.Printf("ss:%v\n", ss)
 				} else {
 					tt, ee := findsquare(i-1, j, p.Sqs)
 					if ee != nil {
 						panic(ee)
 					}
 					if tt.Black {
-						curclue += 1
+						curclue++
 						ss.AcrossClue = curclue
 						ss.DrawAcross = true
 					} else {
 						if j == 0 {
-							curclue += 1
+							curclue++
 							ss.DownClue = curclue
 							ss.DrawDown = true
 						} else {
@@ -82,7 +83,7 @@ func calcAcrossClues(p Puzzle) Puzzle {
 								panic(ee)
 							} else {
 								if tt.Black {
-									curclue += 1
+									curclue++
 									ss.DownClue = curclue
 									ss.DrawDown = true
 								}
@@ -122,7 +123,7 @@ func readpuz(file string) (Puzzle, error) {
 	f.Read(wid)
 	f.Read(hei)
 
-	fmt.Printf("Width: %d Height: %d", wid[0], hei[0])
+	//fmt.Printf("Width: %d Height: %d", wid[0], hei[0])
 
 	width := int(wid[0])
 	height := int(hei[0])
@@ -191,11 +192,15 @@ func genpuz() []Square {
 }
 
 func main() {
+	gp := os.Getenv("GOPATH")
+	ap := path.Join(gp, "puzzles")
+
 	r := gin.Default()
 
 	r.Use(cors.Default()) // Needed to allow all API origins.
 	r.GET("/puzzle/:puzid/get", func(c *gin.Context) {
-		p, err := readpuz(c.Param("puzid") + ".puz")
+		finalPath := path.Join(ap, c.Param("puzid")+".puz")
+		p, err := readpuz(finalPath)
 
 		if err != nil {
 			c.JSON(500, gin.H{"Error": err})
