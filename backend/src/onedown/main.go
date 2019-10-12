@@ -132,8 +132,8 @@ func readpuz(file string) (Puzzle, error) {
 	f.Seek(int64(0x34+(width*height)), 0)
 	br := make([]byte, 1)
 
-	for i := 0; i < width; i++ {
-		for j := 0; j < height; j++ {
+	for j := 0; j < height; j++ {
+		for i := 0; i < width; i++ {
 			bk := false
 			f.Read(br)
 			if rune(br[0]) == '.' {
