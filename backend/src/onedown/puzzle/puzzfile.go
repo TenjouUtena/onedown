@@ -5,7 +5,7 @@ import (
 	"strings"
 )
 
-type Puzzfile struct {
+type Puzzlefile struct {
 	checksum          [2]byte
 	cibChecksum       [2]byte
 	maskLowChecksum   [4]byte
@@ -37,24 +37,24 @@ func readTo(file *os.File, targetArray []byte, offset int64, lastError error, an
 	return err
 }
 
-func ReadPuzfile(puzFile *os.File) (Puzzfile, error) {
-	puzzfile := Puzzfile{}
+func ReadPuzfile(puzFile *os.File) (Puzzlefile, error) {
+	puzzfile := Puzzlefile{}
 	var err error
 	// read checksum data
-	err = readTo(puzFile, puzzfile.checksum[0:2], 0x00, err, func(){})
-	err = readTo(puzFile, puzzfile.cibChecksum[0:2], 0x0E, err, func(){})
-	err = readTo(puzFile, puzzfile.maskLowChecksum[0:4], 0x10, err, func(){})
-	err = readTo(puzFile, puzzfile.maskHiChecksum[0:4], 0x14, err, func(){})
-	err = readTo(puzFile, puzzfile.scrambledChecksum[0:2], 0x1E, err, func(){})
+	err = readTo(puzFile, puzzfile.checksum[0:2], 0x00, err, func() {})
+	err = readTo(puzFile, puzzfile.cibChecksum[0:2], 0x0E, err, func() {})
+	err = readTo(puzFile, puzzfile.maskLowChecksum[0:4], 0x10, err, func() {})
+	err = readTo(puzFile, puzzfile.maskHiChecksum[0:4], 0x14, err, func() {})
+	err = readTo(puzFile, puzzfile.scrambledChecksum[0:2], 0x1E, err, func() {})
 
 	// read puzzle metadata
 	versionBytes := make([]byte, 2)
-	err = readTo(puzFile, versionBytes, 0x10, err, func(){
+	err = readTo(puzFile, versionBytes, 0x10, err, func() {
 		puzzfile.version = string(versionBytes)
 	})
 
 	widthBytes := make([]byte, 1)
-	err = readTo(puzFile, widthBytes, 0x2C, err, func(){
+	err = readTo(puzFile, widthBytes, 0x2C, err, func() {
 		puzzfile.width = widthBytes[0]
 	})
 
@@ -64,12 +64,12 @@ func ReadPuzfile(puzFile *os.File) (Puzzfile, error) {
 	})
 
 	// read reserved space
-	err = readTo(puzFile, puzzfile.reserved1c[0:2], 0x1C, err, func(){})
-	err = readTo(puzFile, puzzfile.reserved20[0:0xC], 0x1E, err, func(){})
+	err = readTo(puzFile, puzzfile.reserved1c[0:2], 0x1C, err, func() {})
+	err = readTo(puzFile, puzzfile.reserved20[0:0xC], 0x1E, err, func() {})
 
 	// read remaining non-strings
-	err = readTo(puzFile, puzzfile.bitmask[0:2], 0x30, err, func(){})
-	err = readTo(puzFile, puzzfile.scrambledTag[0:2], 0x32, err, func(){})
+	err = readTo(puzFile, puzzfile.bitmask[0:2], 0x30, err, func() {})
+	err = readTo(puzFile, puzzfile.scrambledTag[0:2], 0x32, err, func() {})
 
 	// read solution
 	solutionLength := puzzfile.width * puzzfile.height
@@ -98,21 +98,46 @@ func ReadPuzfile(puzFile *os.File) (Puzzfile, error) {
 		// clues
 		clueCountBytes := make([]byte, 2)
 		err = readTo(puzFile, clueCountBytes, 0x2E, err, func() {
-			clueCount := clueCountBytes[0] + clueCountBytes[1] * 0xFF
-			puzzfile.clues = puzzleStrings[3:3+clueCount]
+			clueCount := clueCountBytes[0] + clueCountBytes[1]*0xFF
+			puzzfile.clues = puzzleStrings[3 : 3+clueCount]
 		})
 	})
 
-	// TODO: don't discard the rest
+	// TODO: don't discard the rest of the data
 	return puzzfile, err
 }
 
-func (puzzfile *Puzzfile) WriteToPuzFile(puzFile *os.File) {
+func (puzzfile *Puzzlefile) WriteToPuzFile(puzFile *os.File) {
 	// TODO: write
 }
 
-func (puzzfile *Puzzfile) ToPuzzle() Puzzle {
-	return Puzzle {
-		// TODO implement
+func (puzzfile *Puzzlefile) ToPuzzle() Puzzle {
+	puzzle := Puzzle{}
+	puzzle.squares = make([][]square, puzzfile.height)
+	for index := 0; index < len(puzzfile.solution); index++ {
+		currCol := index % len(puzzfile.solution)
+		currRow := index / int(puzzfile.width)
+		if currCol == 0 { // we are on a new row
+			puzzle.squares[currRow] = make([]square, puzzfile.width)
+		}
+		if puzzfile.solution[index] != '.' {
+			puzzle.squares[currRow][currCol] = square{
+				correctValue: string(puzzfile.solution[index]),
+			}
+		}
 	}
+
+	puzzle.Clues = make([]Clue, len(puzzfile.clues))
+	for index := 0; index < len(puzzfile.clues); index++ {
+
+		// TODO: figure out the direction/length and correctly implement them.
+		puzzle.Clues[index] = Clue{
+			ClueText:      puzzfile.clues[index],
+			ClueDirection: Across,
+			Length:        0,
+			puzzle:        &puzzle,
+		}
+	}
+
+	return puzzle
 }
