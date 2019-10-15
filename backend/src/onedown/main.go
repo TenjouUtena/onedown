@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"os"
 	"path"
+	"strconv"
 
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
@@ -212,10 +213,10 @@ func main() {
 		os.Exit(1)
 	}
 
-	r := gin.Default()
+	router := gin.Default()
 
-	r.Use(cors.Default()) // Needed to allow all API origins.
-	r.GET("/puzzle/:puzid/get", func(c *gin.Context) {
+	router.Use(cors.Default()) // Needed to allow all API origins.
+	router.GET("/puzzle/:puzid/get", func(c *gin.Context) {
 		finalPath := path.Join(cfg.PuzzleDirectory, c.Param("puzid")+".puz")
 		p, err := readpuz(finalPath)
 
@@ -226,5 +227,5 @@ func main() {
 			c.JSON(200, clues.Sqs)
 		}
 	})
-	r.Run() // listen and serve on 0.0.0.0:8080
+	router.Run("127.0.0.1:" + strconv.Itoa(cfg.Port))
 }
