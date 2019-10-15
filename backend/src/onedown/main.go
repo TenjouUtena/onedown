@@ -3,6 +3,7 @@ package main
 import (
 	"encoding/json"
 	"errors"
+	"flag"
 	"fmt"
 	"os"
 	"path"
@@ -195,8 +196,9 @@ func genpuz() []Square {
 func main() {
 	var cfg Configuration
 
-	cfg.Gopath = os.Getenv("GOPATH")
-	file, err := os.Open("configuration\\configuration.development.json")
+	configPath := flag.String("config", path.Join(os.Getenv("GOPATH"), "configuration"), "Path to configuration files")
+	flag.Parse()
+	file, err := os.Open(path.Join(*configPath, "configuration.json"))
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "error: %v\n", err)
 		os.Exit(1)
