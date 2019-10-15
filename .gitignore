@@ -9,4 +9,5 @@ backend/bin/
 main
 backend/src/onedown/__debug_bin
 *.puz
+/.vscode/
 backend/src/onedown/configuration/configuration.development.json
