@@ -2,6 +2,29 @@ import React from 'react';
 import './App.css';
 
 var sqsize=40;
+var curborder=2;
+
+class Selector extends React.Component {
+
+  render() {
+    const value = this.props.value;
+
+    var style = {
+        top: value.Y*sqsize + curborder,
+        left: value.X*sqsize + curborder,
+        width: sqsize-(3+(curborder*2)),
+        height: sqsize-(3+(curborder*2))
+    }
+
+    return (
+      <div className="Selector" style={style}>
+
+      </div>
+    );
+  }
+
+}
+
 
 class Square extends React.Component {
   render() {
@@ -27,7 +50,7 @@ class Square extends React.Component {
       black = "white"
     }
     return (
-      <div className="Square" style={style} id={black}>
+      <div className="Square" style={style} id={black} onClick={(e) => this.props.onClick(e, this.props.value.X, this.props.value.Y)}>
         {clue}
       </div>
     );
@@ -38,7 +61,9 @@ class Game extends React.Component {
   state = {
     puzzle: { squares: []},
     gameMessage: "",
-    puzzleInput: "Oct1219"
+    puzzleInput: "Oct1219",
+    selectorPos: {"X":0, "Y":0},
+    selectingAcross: true
   }
 
   constructor() {
@@ -47,6 +72,22 @@ class Game extends React.Component {
     this.handlePuzzleInputChange = this.handlePuzzleInputChange.bind(this)
     this.loadPuzzle = this.loadPuzzle.bind(this)
     this.handlePuzzleLoad = this.handlePuzzleLoad.bind(this)
+    this.handleSquareClick = this.handleSquareClick.bind(this)
+
+  }
+
+  findSquare (x,y) {
+    return this.state.puzzle.squares.reduce((t,c) => {
+      if (c.X === x && c.Y === y)
+        return c
+      return t
+    },false)
+  }
+
+  handleSquareClick (event, x, y) {
+    let s = this.findSquare(x,y);
+    if (!s.Black)
+      this.setState({selectorPos: {"X":x, "Y":y}});
 
   }
 
@@ -76,6 +117,7 @@ class Game extends React.Component {
   }
 
   handlePuzzleLoad (event) {
+    this.setState({gameMessage: ""})
     this.loadPuzzle();
   }
 
@@ -84,7 +126,7 @@ class Game extends React.Component {
       return (
       <div className="Game">
         <div>
-          <span className="GameMessage" id="GameMessage" ref="GameMessage">{this.state.gameMessage}</span>
+          <span className="GameMessage">{this.state.gameMessage}</span>
         </div>
         <div>
           <span>What x do you want?  </span>
@@ -93,10 +135,12 @@ class Game extends React.Component {
         </div>
        <div className="Grid">
        {squares.map( (t, i) =>
-         <Square value={this.state.puzzle.squares[i]} key={(t.Y*100)+t.X}/>
+         <Square value={this.state.puzzle.squares[i]} key={(t.Y*100)+t.X} onClick={this.handleSquareClick}/>
        )}
+       <Selector value={this.state.selectorPos}></Selector>
        </div>
       </div>
+
       );}
 }
 

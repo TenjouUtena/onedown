@@ -50,3 +50,11 @@
 .Square#black {
   background: #000000;
 }
+
+
+.Selector {
+  position: absolute;
+  border-color: palevioletred;
+  border-width: 2px;
+  border-style: solid;
+}
