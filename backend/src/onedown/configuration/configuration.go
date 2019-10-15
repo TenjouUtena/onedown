@@ -1,0 +1,7 @@
+package Configuration
+
+type Configuration struct {
+	Port            int
+	PuzzleDirectory string
+	Gopath          string
+}
