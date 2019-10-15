@@ -1,5 +1,5 @@
 import React from 'react';
-import './App.css';
+import './App.scss';
 
 var sqsize=40;
 var curborder=2;
@@ -11,9 +11,7 @@ class Selector extends React.Component {
 
     var style = {
         top: value.Y*sqsize + curborder,
-        left: value.X*sqsize + curborder,
-        width: sqsize-(3+(curborder*2)),
-        height: sqsize-(3+(curborder*2))
+        left: value.X*sqsize + curborder
     }
 
     return (
@@ -31,9 +29,7 @@ class Square extends React.Component {
     const value = this.props.value;
     var style = {
        top: value.Y*sqsize,
-       left: value.X*sqsize,
-       width: sqsize-1,
-       height: sqsize-1
+       left: value.X*sqsize
     };
     let clue;
     if (value.DrawDown) {
@@ -96,7 +92,7 @@ class Game extends React.Component {
       }
     })
 
-  this.setState({puzzle: {squares: sqs}})
+    this.setState({puzzle: {squares: sqs}})
 
   }
 
