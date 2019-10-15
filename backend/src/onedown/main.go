@@ -195,8 +195,9 @@ func genpuz() []Square {
 
 func main() {
 	var cfg Configuration
+	cfg.GOPATH = os.Getenv("GOPATH")
 
-	configPath := flag.String("config", path.Join(os.Getenv("GOPATH"), "configuration"), "Path to configuration files")
+	configPath := flag.String("config", path.Join(cfg.GOPATH, "configuration"), "Path to configuration files")
 	flag.Parse()
 	file, err := os.Open(path.Join(*configPath, "configuration.json"))
 	if err != nil {
