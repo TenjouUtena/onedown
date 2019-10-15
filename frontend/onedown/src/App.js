@@ -17,7 +17,7 @@ class Selector extends React.Component {
     }
 
     return (
-      <div className="Selector" style={style}>
+      <div className="Selector" style={style} >
 
       </div>
     );
@@ -50,7 +50,8 @@ class Square extends React.Component {
       black = "white"
     }
     return (
-      <div className="Square" style={style} id={black} onClick={(e) => this.props.onClick(e, this.props.value.X, this.props.value.Y)}>
+      <div className="Square" style={style} id={black} onClick={(e) => this.props.onClick(e, this.props.value.X, this.props.value.Y)}
+                              selstyle={this.props.value.selected ? 'selected' : 'notSelected'}>
         {clue}
       </div>
     );
@@ -84,11 +85,38 @@ class Game extends React.Component {
     },false)
   }
 
-  handleSquareClick (event, x, y) {
-    let s = this.findSquare(x,y);
-    if (!s.Black)
-      this.setState({selectorPos: {"X":x, "Y":y}});
+  selectSquare (x,y) {
+    this.setState({selectorPos: {"X":x, "Y":y}});
+    let sqs = this.state.puzzle.squares;
 
+    // TODO: pls fix for candidate squares.
+    sqs.forEach(e => {
+      if(e.X === x && e.Y === y) {
+        e.selected = true;
+      }
+    })
+
+  this.setState({puzzle: {squares: sqs}})
+
+  }
+
+  handleSquareClick (event, x, y) {
+    let sqs = this.state.puzzle.squares;
+   let s = this.findSquare(x,y);
+
+    if (!s.Black) {
+      sqs = this.resetSelection(sqs);
+      this.setState({puzzle: {squares: sqs}})
+      this.selectSquare(x,y);
+    }
+   
+  }
+
+  resetSelection (sqs) {
+    sqs.forEach(element => {
+      element.selected = false;
+    });
+    return sqs;
   }
 
   loadPuzzle () {
@@ -99,6 +127,7 @@ class Game extends React.Component {
     })
     .then(res => res.json())
     .then(jj => {
+      jj = this.resetSelection(jj)
       this.setState({ puzzle: { squares: jj}})
 
     })
@@ -110,6 +139,7 @@ class Game extends React.Component {
 
   componentDidMount() {
     this.loadPuzzle();
+    this.selectSquare(0,0);
   }
 
   handlePuzzleInputChange (event) {
@@ -134,8 +164,11 @@ class Game extends React.Component {
           <input type='button' value="load puzzle" onClick={this.handlePuzzleLoad}/>
         </div>
        <div className="Grid">
-       {squares.map( (t, i) =>
-         <Square value={this.state.puzzle.squares[i]} key={(t.Y*100)+t.X} onClick={this.handleSquareClick}/>
+       {squares.map( (t, i) => {
+          return (
+          <Square value={this.state.puzzle.squares[i]} key={(t.Y*100)+t.X} onClick={this.handleSquareClick}/> 
+          );
+       }
        )}
        <Selector value={this.state.selectorPos}></Selector>
        </div>

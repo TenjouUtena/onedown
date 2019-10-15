@@ -27,6 +27,10 @@
        border-style: solid;
 }
 
+.Square[selstyle=selected] {
+  background-color: lightgrey;
+}
+
 .Game {
   position: absolute;
   top: 50px;
