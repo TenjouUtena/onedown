@@ -193,10 +193,10 @@ func genpuz() []Square {
 }
 
 func main() {
-	//gp := os.Getenv("GOPATH")
-
 	var cfg Configuration
-	file, err := os.Open("configuration\\config.development.json")
+
+	cfg.Gopath = os.Getenv("GOPATH")
+	file, err := os.Open("configuration\\configuration.development.json")
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "error: %v\n", err)
 		os.Exit(1)
