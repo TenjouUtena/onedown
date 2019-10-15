@@ -2,6 +2,7 @@ package puzzle
 
 import (
 	"os"
+	"sort"
 	"strings"
 )
 
@@ -91,9 +92,6 @@ func ReadPuzfile(puzFile *os.File) (Puzzlefile, error) {
 	stringBytes := make([]byte, stringLength)
 	err = readTo(puzFile, stringBytes, stringOffset, err, func() {
 		puzzleStrings := strings.Split(string(stringBytes), "\000")
-		puzzfile.title = puzzleStrings[0]
-		puzzfile.author = puzzleStrings[1]
-		puzzfile.copyright = puzzleStrings[2]
 
 		// clues
 		clueCountBytes := make([]byte, 2)
@@ -112,8 +110,22 @@ func (puzzfile *Puzzlefile) WriteToPuzFile(puzFile *os.File) {
 }
 
 func (puzzfile *Puzzlefile) ToPuzzle() Puzzle {
-	puzzle := Puzzle{}
+	puzzle := Puzzle{
+		Metadata: puzzleMeta{
+			Title:     puzzfile.title,
+			Author:    puzzfile.author,
+			Copyright: puzzfile.copyright,
+			Notes:     puzzfile.notes,
+		},
+	}
 	puzzle.squares = make([][]square, puzzfile.height)
+	puzzle.AcrossClues = make(map[int]Clue)
+	puzzle.DownClues = make(map[int]Clue)
+	var squareNumber int = 1
+
+	// first off, we will build the array of squares in the puzzle. we have the solved puzzle in the file, and
+	// we will use this to construct the square objects. at the same time, we need to identify where clues fit in the
+	// puzzle so we can build them later.
 	for index := 0; index < len(puzzfile.solution); index++ {
 		currCol := index % len(puzzfile.solution)
 		currRow := index / int(puzzfile.width)
@@ -124,18 +136,49 @@ func (puzzfile *Puzzlefile) ToPuzzle() Puzzle {
 			puzzle.squares[currRow][currCol] = square{
 				correctValue: string(puzzfile.solution[index]),
 			}
+			// if either the above square or the square to the left is null, or off the bounds. we need to place a number
+			// and note a clue
+			addedClue := false
+			if currCol == 0 || puzzle.squares[currRow][currCol-1].correctValue == "" {
+				addedClue = true
+				puzzle.AcrossClues[squareNumber] = Clue{}
+			}
+			if currRow == 0 || puzzle.squares[currRow-1][currCol].correctValue == "" {
+				addedClue = true
+				puzzle.DownClues[squareNumber] = Clue{}
+			}
+
+			// bump clue number if we added something
+			if addedClue {
+				puzzle.squares[currRow][currCol].number = squareNumber
+				squareNumber++
+			}
 		}
 	}
 
-	puzzle.Clues = make([]Clue, len(puzzfile.clues))
-	for index := 0; index < len(puzzfile.clues); index++ {
+	// get array indices of all of the clues we generated so we can add their strings below
+	acrossClueIndices := make([]int, 0)
+	for k, _ := range puzzle.AcrossClues {
+		acrossClueIndices = append(acrossClueIndices, k)
+	}
+	sort.Ints(acrossClueIndices)
 
-		// TODO: figure out the direction/length and correctly implement them.
-		puzzle.Clues[index] = Clue{
-			ClueText:      puzzfile.clues[index],
-			ClueDirection: Across,
-			Length:        0,
-			puzzle:        &puzzle,
+	downClueIndices := make([]int, 0)
+	for k, _ := range puzzle.DownClues {
+		downClueIndices = append(downClueIndices, k)
+	}
+	sort.Ints(downClueIndices)
+
+	for index := 0; index < len(puzzfile.clues); index++ {
+		if index < len(acrossClueIndices) {
+			acrossClue := puzzle.AcrossClues[acrossClueIndices[index]]
+			acrossClue.ClueText = puzzfile.clues[index]
+			acrossClue.puzzle = &puzzle
+		} else {
+			downIndex := downClueIndices[index-len(acrossClueIndices)]
+			downClue := puzzle.DownClues[downClueIndices[downIndex]]
+			downClue.ClueText = puzzfile.clues[index]
+			downClue.puzzle = &puzzle
 		}
 	}
 
