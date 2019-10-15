@@ -8,3 +8,7 @@ type Clue struct {
 	ClueText string
 	puzzle   *Puzzle
 }
+
+func (clue *Clue) setText(text string) {
+	clue.ClueText = text
+}

@@ -41,7 +41,7 @@ func readTo(file *os.File, targetArray []byte, offset int64, lastError error, an
 func ReadPuzfile(puzFile *os.File) (Puzzlefile, error) {
 	puzzfile := Puzzlefile{}
 	var err error
-	// read checksum data
+	// read checksum testdata
 	err = readTo(puzFile, puzzfile.checksum[0:2], 0x00, err, func() {})
 	err = readTo(puzFile, puzzfile.cibChecksum[0:2], 0x0E, err, func() {})
 	err = readTo(puzFile, puzzfile.maskLowChecksum[0:4], 0x10, err, func() {})
@@ -80,17 +80,17 @@ func ReadPuzfile(puzFile *os.File) (Puzzlefile, error) {
 	})
 
 	// read puzzle strings
-	stringOffset := int64(0x34 + solutionLength)
+	stringOffset := 0x34 + int64(solutionLength) + int64(solutionLength)
 	var stringLength int64 = 0
 	stat, statErr := puzFile.Stat()
 	if statErr == nil {
-		stringLength = stat.Size() - stringOffset
+		stringLength = int64(stat.Size()) - stringOffset
 	} else {
 		err = statErr
 	}
 
 	stringBytes := make([]byte, stringLength)
-	err = readTo(puzFile, stringBytes, stringOffset, err, func() {
+	err = readTo(puzFile, stringBytes, int64(stringOffset), err, func() {
 		puzzleStrings := strings.Split(string(stringBytes), "\000")
 
 		// clues
@@ -101,7 +101,7 @@ func ReadPuzfile(puzFile *os.File) (Puzzlefile, error) {
 		})
 	})
 
-	// TODO: don't discard the rest of the data
+	// TODO: don't discard the rest of the testdata
 	return puzzfile, err
 }
 
@@ -119,15 +119,15 @@ func (puzzfile *Puzzlefile) ToPuzzle() Puzzle {
 		},
 	}
 	puzzle.squares = make([][]square, puzzfile.height)
-	puzzle.AcrossClues = make(map[int]Clue)
-	puzzle.DownClues = make(map[int]Clue)
+	puzzle.AcrossClues = make(map[int]*Clue)
+	puzzle.DownClues = make(map[int]*Clue)
 	var squareNumber int = 1
 
 	// first off, we will build the array of squares in the puzzle. we have the solved puzzle in the file, and
 	// we will use this to construct the square objects. at the same time, we need to identify where clues fit in the
 	// puzzle so we can build them later.
 	for index := 0; index < len(puzzfile.solution); index++ {
-		currCol := index % len(puzzfile.solution)
+		currCol := index % int(puzzfile.width)
 		currRow := index / int(puzzfile.width)
 		if currCol == 0 { // we are on a new row
 			puzzle.squares[currRow] = make([]square, puzzfile.width)
@@ -141,11 +141,15 @@ func (puzzfile *Puzzlefile) ToPuzzle() Puzzle {
 			addedClue := false
 			if currCol == 0 || puzzle.squares[currRow][currCol-1].correctValue == "" {
 				addedClue = true
-				puzzle.AcrossClues[squareNumber] = Clue{}
+				puzzle.AcrossClues[squareNumber] = &Clue{
+					puzzle: &puzzle,
+				}
 			}
 			if currRow == 0 || puzzle.squares[currRow-1][currCol].correctValue == "" {
 				addedClue = true
-				puzzle.DownClues[squareNumber] = Clue{}
+				puzzle.DownClues[squareNumber] = &Clue{
+					puzzle: &puzzle,
+				}
 			}
 
 			// bump clue number if we added something
@@ -171,14 +175,10 @@ func (puzzfile *Puzzlefile) ToPuzzle() Puzzle {
 
 	for index := 0; index < len(puzzfile.clues); index++ {
 		if index < len(acrossClueIndices) {
-			acrossClue := puzzle.AcrossClues[acrossClueIndices[index]]
-			acrossClue.ClueText = puzzfile.clues[index]
-			acrossClue.puzzle = &puzzle
+			puzzle.AcrossClues[acrossClueIndices[index]].setText(puzzfile.clues[index])
 		} else {
 			downIndex := downClueIndices[index-len(acrossClueIndices)]
-			downClue := puzzle.DownClues[downClueIndices[downIndex]]
-			downClue.ClueText = puzzfile.clues[index]
-			downClue.puzzle = &puzzle
+			puzzle.DownClues[downIndex].setText(puzzfile.clues[index])
 		}
 	}
 
