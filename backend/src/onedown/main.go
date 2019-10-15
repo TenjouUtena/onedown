@@ -196,7 +196,7 @@ func main() {
 	//gp := os.Getenv("GOPATH")
 
 	var cfg Configuration
-	file, err := os.Open("config.development.json")
+	file, err := os.Open("configuration\\config.development.json")
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "error: %v\n", err)
 		os.Exit(1)
