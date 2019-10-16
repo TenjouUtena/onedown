@@ -33,3 +33,7 @@ type square struct {
 	number       int
 	correctValue string
 }
+
+func (sq square) isBlack() bool {
+	return sq.correctValue == ""
+}
