@@ -2,6 +2,9 @@ package main
 
 import (
 	"github.com/TenjouUtena/onedown/backend/src/onedown/puzzle"
+	"encoding/json"
+	"flag"
+	"fmt"
 	"os"
 	"path"
 
@@ -10,15 +13,31 @@ import (
 )
 
 func main() {
-	gp := os.Getenv("GOPATH")
-	ap := path.Join(gp, "puzzles")
+	var cfg Configuration
+	cfg.GOPATH = os.Getenv("GOPATH")
+
+	configPath := flag.String("config", path.Join(cfg.GOPATH, "configuration"), "Path to configuration files")
+	flag.Parse()
+	file, err := os.Open(path.Join(*configPath, "configuration.json"))
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "error: %v\n", err)
+		os.Exit(1)
+	}
+	decoder := json.NewDecoder(file)
+	err = decoder.Decode(&cfg)
+
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "error: %v\n", err)
+		os.Exit(1)
+	}
 
 	r := gin.Default()
 
 	r.Use(cors.Default()) // Needed to allow all API origins.
 	r.GET("/puzzle/:puzid/get", func(c *gin.Context) {
-		finalPath := path.Join(ap, c.Param("puzid")+".puz")
+		finalPath := path.Join(cfg.PuzzleDirectory, c.Param("puzid")+".puz")
 		puzFile, err := os.Open(finalPath)
+
 		if err != nil {
 			c.JSON(500, gin.H{"Error": err})
 		} else {
