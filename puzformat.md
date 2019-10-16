@@ -3,7 +3,8 @@
 | Checksum | 0x00 | 0x01 | 0x2 | short | overall file checksum | 
 | File Magic | 0x02 | 0x0D | 0xC | string | NUL-terminated constant string: 4143 524f 5353 2644 4f57 4e00 ("ACROSS&DOWN") |
 
-The following checksums are described in more detail in a separate section below. 
+The following checksums are described in more detail in a separate section below.
+ 
 | Component | Offset | End | Length | Type | Description | 
 |:--------------|:-----------|:--------|:-----------|:---------|:----------------| 
 | CIB Checksum | 0x0E | 0x0F | 0x2 | short | (defined later) | 
@@ -21,3 +22,13 @@ The following checksums are described in more detail in a separate section below
 | # of Clues | 0x2E | 0x2F | 0x2 | short | The number of clues for this board | 
 | Unknown Bitmask | 0x30 | 0x31 | 0x2 | short | A bitmask. Operations unknown. | 
 | Scrambled Tag | 0x32 | 0x33 | 0x2 | short | 0 for unscrambled puzzles. Nonzero (often 4) for scrambled puzzles. |
+
+| Description | Example | 
+|:------------|:--------| 
+| Title | Theme: .PUZ format | 
+| Author | J. Puz | W. Shortz | 
+| Copyright | (c) 2007 J. Puz | 
+| Clue#1 | Cued, in pool | 
+| ... | ...more clues... |
+| Clue#n | Quiet | 
+| Notes | http://mywebsite |
