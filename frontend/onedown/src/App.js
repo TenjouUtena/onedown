@@ -4,6 +4,62 @@ import './App.scss';
 var sqsize=40;
 var curborder=2;
 
+var dirs = {
+  ACROSS: 'across',
+  DOWN: 'down'
+}
+
+class Clue extends React.Component {
+
+  render() {
+    const value = this.props.value;
+
+    let text = String(value.number) + ". " + value.text
+
+    return <div className="Clue" selstyle={value.selected ? 'selected' : 'not-selected'} onClick={(e) => this.props.onClick(e,value.number, value.dir)}>{text}</div>
+  }
+}
+
+
+class ClueList extends React.Component {
+  dir = dirs.ACROSS;
+  cname = "AcrossList";
+
+  render() {
+    const value = this.props.value;
+
+
+    if (value) {
+            return (
+        <div className={this.cname} style={this.props.style}>        {
+          Object.keys(value.values).map((k) => {
+            let vv = {
+              number: k,
+              text: value.values[k],
+              dir: this.dir,
+              selected: value.selected == k
+            }
+          return (<Clue value={vv} key={k} onClick={this.props.onClick}/>);
+          })
+                        }
+        </div>
+      );}
+    else {
+      return <div />
+    }
+  }
+}
+
+
+class AcrossClueList extends ClueList {}
+
+class DownClueList extends ClueList {
+  dir = dirs.DOWN
+  cname = "DownList"
+}
+
+
+
 class Selector extends React.Component {
 
   render() {
@@ -53,11 +109,15 @@ class Square extends React.Component {
 
 class Game extends React.Component {
   state = {
-    puzzle: { squares: []},
+    squares: [],
+    acrossClues: {},
+    downClues: {},
     gameMessage: "",
     puzzleInput: "Apr0914",
     selectorPos: {"row":0, "col":0},
-    selectingAcross: true
+    selectingAcross: true,
+    acrossSelected: 1,
+    downSelected: 1
   }
 
   constructor() {
@@ -67,34 +127,51 @@ class Game extends React.Component {
     this.loadPuzzle = this.loadPuzzle.bind(this)
     this.handlePuzzleLoad = this.handlePuzzleLoad.bind(this)
     this.handleSquareClick = this.handleSquareClick.bind(this)
+    this.handleClueClick = this.handleClueClick.bind(this)
 
+  }
+
+  handleClueClick (event, number, direction) {
+    let s = this.findSquareFromClue(number)
+    this.selectSquare(s.row, s.col)
+
+    if(direction === dirs.ACROSS)
+       this.setState({acrossSelected: number})
+    if(direction === dirs.DOWN)
+       this.setState({downSelected: number})
+  }
+
+  findSquareFromClue (clue) {
+    return this.state.squares.filter(e => (e.clueNum == clue))[0]
   }
 
   findSquare (x,y) {
-    return this.state.puzzle.squares.filter(e => (e.row === x && e.col === y))
+    return this.state.squares.filter(e => (e.row === x && e.col === y))[0]
   }
 
   selectSquare (row,col) {
+    let sqs = this.state.squares;
+    sqs = this.resetSelection(sqs);
+    this.setState({squares: sqs})
     this.setState({selectorPos: {"row":row, "col":col}});
-    let sqs = this.state.puzzle.squares;
+
 
     sqs.forEach(e => {
       if(e.row === row && e.col === col)
         e.selected = true;
     })
 
-    this.setState({puzzle: {squares: sqs}})
+    this.setState({squares: sqs})
 
 
   }
 
   handleSquareClick (event, row, col) {
-    let sqs = this.state.puzzle.squares;
+
     let s = this.findSquare(row,col);
 
     if (!s.isBlack) {
-      sqs = this.resetSelection(sqs);
-      this.setState({puzzle: {squares: sqs}})
+
       this.selectSquare(row,col);
     }
    
@@ -116,8 +193,9 @@ class Game extends React.Component {
     .then(res => res.json())
     .then(jj => {
       //this.resetSelection(jj.squares)
-      this.setState({ puzzle: jj})
-
+      this.setState({ squares: jj.squares,
+                      acrossClues: jj.acrossClues,
+                      downClues: jj.downClues})
     })
     .catch(res => {
       this.setState({ gameMessage: "Error Loading Puzzle..." });
@@ -140,7 +218,26 @@ class Game extends React.Component {
   }
 
   render () {
-      const {puzzle: {squares}} = this.state;
+      const squares = this.state.squares;
+
+      var astyle = {
+        top: 50
+      }
+
+      var dstyle = {
+        top: (40*6.5)+50,
+      }
+
+      var aval = {
+        values: this.state.acrossClues,
+        selected: this.state.acrossSelected
+      }
+
+      var dval = {
+        values: this.state.downClues,
+        selected: this.state.downSelected
+      }
+
       return (
       <div className="Game">
         <div>
@@ -154,13 +251,16 @@ class Game extends React.Component {
        <div className="Grid">
        {squares.map( (t, i) => {
           return (
-          <Square value={this.state.puzzle.squares[i]} key={(t.col*100)+t.row} onClick={this.handleSquareClick}/> 
+          <Square value={this.state.squares[i]} key={(t.col*100)+t.row} onClick={this.handleSquareClick}/> 
           );
        }
        )}
-       <Selector value={this.state.selectorPos}></Selector>
+        <Selector value={this.state.selectorPos}></Selector>
+        </div>
+
+        <AcrossClueList className="AcrossClueList" value={aval} style={astyle} onClick={this.handleClueClick} />
+        <DownClueList className="DownClueList" value={dval} style={dstyle} onClick={this.handleClueClick}/>
        </div>
-      </div>
 
       );}
 }

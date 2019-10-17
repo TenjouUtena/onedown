@@ -46,3 +46,26 @@ $selector-padding: 2px;
   width: $square-size - (3px + ($selector-padding*2));
   height: $square-size - (3px + ($selector-padding*2));
 }
+
+@mixin clue-list {
+  border-style: solid;
+  border-width: 1px;
+  left: $square-size*16;
+  position: absolute;
+  overflow: auto;
+  max-height: $square-size*6;
+  width: 550px;
+}
+
+.AcrossList {
+  @include clue-list;
+}
+
+.DownList {
+  @include clue-list;
+}
+
+
+.Clue[selstyle=selected] {
+  background-color: lightskyblue;
+}
