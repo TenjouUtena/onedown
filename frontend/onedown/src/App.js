@@ -10,8 +10,8 @@ class Selector extends React.Component {
     const value = this.props.value;
 
     var style = {
-        top: value.Y*sqsize + curborder,
-        left: value.X*sqsize + curborder
+        top: value.row*sqsize + curborder,
+        left: value.col*sqsize + curborder
     }
 
     return (
@@ -28,25 +28,22 @@ class Square extends React.Component {
   render() {
     const value = this.props.value;
     var style = {
-       top: value.Y*sqsize,
-       left: value.X*sqsize
+       top: value.row*sqsize,
+       left: value.col*sqsize
     };
     let clue;
-    if (value.DrawDown) {
-      clue = <span className="SquareClue" >{value.DownClue}</span>
-    }
-    if (value.DrawAcross) {
-      clue = <span className="SquareClue" >{value.AcrossClue}</span>
+    if (value.clueNum) {
+      clue = <span className="SquareClue" >{value.clueNum}</span>
     }
 
     let black;
-    if (value.Black) {
+    if (value.isBlack) {
       black = "black"
     } else {
       black = "white"
     }
     return (
-      <div className="Square" style={style} id={black} onClick={(e) => this.props.onClick(e, this.props.value.X, this.props.value.Y)}
+      <div className="Square" style={style} id={black} onClick={(e) => this.props.onClick(e, this.props.value.row, this.props.value.col)}
                               selstyle={this.props.value.selected ? 'selected' : 'notSelected'}>
         {clue}
       </div>
@@ -58,8 +55,8 @@ class Game extends React.Component {
   state = {
     puzzle: { squares: []},
     gameMessage: "",
-    puzzleInput: "Oct1219",
-    selectorPos: {"X":0, "Y":0},
+    puzzleInput: "Apr0914",
+    selectorPos: {"row":0, "col":0},
     selectingAcross: true
   }
 
@@ -74,36 +71,31 @@ class Game extends React.Component {
   }
 
   findSquare (x,y) {
-    return this.state.puzzle.squares.reduce((t,c) => {
-      if (c.X === x && c.Y === y)
-        return c
-      return t
-    },false)
+    return this.state.puzzle.squares.filter(e => (e.row === x && e.col === y))
   }
 
-  selectSquare (x,y) {
-    this.setState({selectorPos: {"X":x, "Y":y}});
+  selectSquare (row,col) {
+    this.setState({selectorPos: {"row":row, "col":col}});
     let sqs = this.state.puzzle.squares;
 
-    // TODO: pls fix for candidate squares.
     sqs.forEach(e => {
-      if(e.X === x && e.Y === y) {
+      if(e.row === row && e.col === col)
         e.selected = true;
-      }
     })
 
     this.setState({puzzle: {squares: sqs}})
 
+
   }
 
-  handleSquareClick (event, x, y) {
+  handleSquareClick (event, row, col) {
     let sqs = this.state.puzzle.squares;
-   let s = this.findSquare(x,y);
+    let s = this.findSquare(row,col);
 
-    if (!s.Black) {
+    if (!s.isBlack) {
       sqs = this.resetSelection(sqs);
       this.setState({puzzle: {squares: sqs}})
-      this.selectSquare(x,y);
+      this.selectSquare(row,col);
     }
    
   }
@@ -123,8 +115,8 @@ class Game extends React.Component {
     })
     .then(res => res.json())
     .then(jj => {
-      jj = this.resetSelection(jj)
-      this.setState({ puzzle: { squares: jj}})
+      //this.resetSelection(jj.squares)
+      this.setState({ puzzle: jj})
 
     })
     .catch(res => {
@@ -162,7 +154,7 @@ class Game extends React.Component {
        <div className="Grid">
        {squares.map( (t, i) => {
           return (
-          <Square value={this.state.puzzle.squares[i]} key={(t.Y*100)+t.X} onClick={this.handleSquareClick}/> 
+          <Square value={this.state.puzzle.squares[i]} key={(t.col*100)+t.row} onClick={this.handleSquareClick}/> 
           );
        }
        )}
