@@ -8,13 +8,11 @@ import (
 // InitDaemon initiates a puzzle session daemon. Should be invoked as a goroutine.
 func InitDaemon(listen chan SessionDaemonMessage) {
 	// session map lives for the duration of this goroutine. TODO: initialize w/ serialized DB data
-	var sessions = make(map[uuid.UUID]session)
+	var sessions = make(map[uuid.UUID]*session)
 	for msg := range listen {
 		switch typedMsg := msg.(type) {
 		case SpawnSession:
-			newSession := session {
-				puzz: typedMsg.puzzle,
-			}
+			newSession := createSession(typedMsg.puzzle)
 			sessionId := uuid.New()
 			sessions[sessionId] = newSession
 		case MessageForSession:
