@@ -46,5 +46,5 @@ type SpawnSession struct {
 type MessageForSession struct {
 	SessionDaemonMessage
 	SessionId uuid.UUID
-	Message SessionMessage
+	Message   SessionMessage
 }

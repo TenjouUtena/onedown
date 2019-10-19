@@ -1,13 +1,33 @@
 package session
 
-import "github.com/google/uuid"
+import (
+	"github.com/TenjouUtena/onedown/backend/src/onedown/solver"
+	"github.com/google/uuid"
+)
 
-type SessionMessage interface {}
+type SessionMessage interface{}
+
+type JoinSession struct {
+	SessionMessage
+	solver *solver.Solver
+}
+
+type LeaveSession struct {
+	SessionMessage
+	solver uuid.UUID
+}
 
 type WriteSquare struct {
 	SessionMessage
-	player uuid.UUID
-	row int
-	col int
+	solver uuid.UUID
+	row    int
+	col    int
 	answer string
+}
+
+type CheckSquares struct {
+	SessionMessage
+	solver     uuid.UUID
+	rowIndices [2]int
+	colIndices [2]int
 }

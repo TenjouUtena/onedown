@@ -1,10 +1,10 @@
 package main
 
 import (
-	"github.com/TenjouUtena/onedown/backend/src/onedown/puzzle"
 	"encoding/json"
 	"flag"
 	"fmt"
+	"github.com/TenjouUtena/onedown/backend/src/onedown/puzzle"
 	"os"
 	"path"
 
