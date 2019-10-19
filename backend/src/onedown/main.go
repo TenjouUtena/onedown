@@ -34,6 +34,16 @@ func main() {
 	r := gin.Default()
 
 	r.Use(cors.Default()) // Needed to allow all API origins.
+
+	// PUT /solve/:sessionId
+	// URL params:
+	// sessionId UUID
+	// Body:
+	// some json object TODO decide what
+	r.PUT("/solve/:sessionId", func(c *gin.Context) {
+		c.JSON(200, gin.H{})
+	})
+	
 	r.GET("/puzzle/:puzid/get", func(c *gin.Context) {
 		finalPath := path.Join(cfg.PuzzleDirectory, c.Param("puzid")+".puz")
 		puzFile, err := os.Open(finalPath)
