@@ -9,6 +9,7 @@ import (
 	"path"
 	"strconv"
 
+	"github.com/TenjouUtena/onedown/backend/src/onedown/cassandra"
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 )
@@ -212,6 +213,9 @@ func main() {
 		fmt.Fprintf(os.Stderr, "error: %v\n", err)
 		os.Exit(1)
 	}
+
+	cassandraSession := cassandra.Session
+	defer cassandraSession.Close()
 
 	router := gin.Default()
 
