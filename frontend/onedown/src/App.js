@@ -11,12 +11,23 @@ var dirs = {
 
 class Clue extends React.Component {
 
+  constructor() {
+    super()
+
+    this.ref = React.createRef()
+  }
+
+  componentDidUpdate () {
+   if(this.props.value.selected) {
+      this.ref.current.scrollIntoView()
+    }
+  }
+
   render() {
     const value = this.props.value;
 
     let text = String(value.number) + ". " + value.text
-
-    return <div className="Clue" selstyle={value.selected ? 'selected' : 'not-selected'} onClick={(e) => this.props.onClick(e,value.number, value.dir)}>{text}</div>
+    return <div ref = {this.ref} className="Clue" selstyle={value.selected ? 'selected' : 'not-selected'} onClick={(e) => this.props.onClick(e,value.number, value.dir)}>{text}</div>
   }
 }
 
