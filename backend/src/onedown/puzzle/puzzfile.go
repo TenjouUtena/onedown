@@ -27,7 +27,7 @@ type Puzzlefile struct {
 	notes             string
 }
 
-func readTo(file *os.File, targetArray []byte, offset int64, lastError error, andThen func()) (error) {
+func readTo(file *os.File, targetArray []byte, offset int64, lastError error, andThen func()) error {
 	if lastError != nil {
 		return lastError
 	}
@@ -60,7 +60,7 @@ func ReadPuzfile(puzFile *os.File) (Puzzlefile, error) {
 	})
 
 	heightBytes := make([]byte, 1)
-	err = readTo(puzFile, heightBytes, 0x2C, err, func() {
+	err = readTo(puzFile, heightBytes, 0x2D, err, func() {
 		puzzfile.height = heightBytes[0]
 	})
 
