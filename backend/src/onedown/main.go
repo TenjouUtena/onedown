@@ -5,6 +5,7 @@ import (
 	"flag"
 	"fmt"
 	"github.com/TenjouUtena/onedown/backend/src/onedown/puzzle"
+	"github.com/TenjouUtena/onedown/backend/src/onedown/session"
 	"os"
 	"path"
 
@@ -30,6 +31,9 @@ func main() {
 		fmt.Fprintf(os.Stderr, "error: %v\n", err)
 		os.Exit(1)
 	}
+
+	// set up session daemon
+	session.InitDaemon(session.SessionDaemon)
 
 	r := gin.Default()
 

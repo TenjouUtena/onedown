@@ -5,6 +5,8 @@ import (
 	"github.com/google/uuid"
 )
 
+var SessionDaemon = make(chan SessionDaemonMessage)
+
 // InitDaemon initiates a puzzle session daemon. Should be invoked as a goroutine.
 func InitDaemon(listen chan SessionDaemonMessage) {
 	// session map lives for the duration of this goroutine. TODO: initialize w/ serialized DB data

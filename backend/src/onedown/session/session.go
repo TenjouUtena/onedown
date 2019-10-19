@@ -19,41 +19,41 @@ func doSession(sesh *session) {
 		switch typedMsg := msg.(type) {
 		case JoinSession:
 			sesh.broadcastSolverMessage(solver.SolverJoined{
-				Solver: typedMsg.solver.Id,
+				Solver: typedMsg.Solver.Id,
 			})
-			sesh.solvers[typedMsg.solver.Id] = typedMsg.solver
-			typedMsg.solver.Tell(solver.PuzzleState{
+			sesh.solvers[typedMsg.Solver.Id] = typedMsg.Solver
+			typedMsg.Solver.Tell(solver.PuzzleState{
 				Solvers:     sesh.getSolverIds(),
 				Puzzle:      sesh.puzz,
 				PuzzleState: &sesh.state,
 			})
 		case LeaveSession:
-			delete(sesh.solvers, typedMsg.solver)
+			delete(sesh.solvers, typedMsg.Solver)
 			sesh.broadcastSolverMessage(solver.SolverLeft{
-				Solver: typedMsg.solver,
+				Solver: typedMsg.Solver,
 			})
 			// TODO any unmarshalling of solver?
 		case WriteSquare:
-			sesh.state.putAnswer(typedMsg.solver, typedMsg.row, typedMsg.col, typedMsg.answer)
+			sesh.state.putAnswer(typedMsg.Solver, typedMsg.Row, typedMsg.Col, typedMsg.Answer)
 			sesh.broadcastSolverMessage(solver.SquareUpdated{
-				Row:      typedMsg.row,
-				Col:      typedMsg.col,
-				NewValue: typedMsg.answer,
-				FilledBy: typedMsg.solver,
+				Row:      typedMsg.Row,
+				Col:      typedMsg.Col,
+				NewValue: typedMsg.Answer,
+				FilledBy: typedMsg.Solver,
 			})
 		case CheckSquares:
-			if typedMsg.rowIndices[1] >= typedMsg.rowIndices[0] && typedMsg.colIndices[1] >= typedMsg.colIndices[0] {
-				slice := make([][]string, typedMsg.rowIndices[1]-typedMsg.rowIndices[0]+1)
-				for rowIndex := typedMsg.rowIndices[0]; rowIndex <= typedMsg.rowIndices[1]; rowIndex++ {
-					slice[rowIndex] = make([]string, typedMsg.colIndices[0]-typedMsg.colIndices[1]+1)
-					for colIndex := typedMsg.colIndices[0]; colIndex <= typedMsg.colIndices[1]; colIndex++ {
+			if typedMsg.RowIndices[1] >= typedMsg.RowIndices[0] && typedMsg.ColIndices[1] >= typedMsg.ColIndices[0] {
+				slice := make([][]string, typedMsg.RowIndices[1]-typedMsg.RowIndices[0]+1)
+				for rowIndex := typedMsg.RowIndices[0]; rowIndex <= typedMsg.RowIndices[1]; rowIndex++ {
+					slice[rowIndex] = make([]string, typedMsg.ColIndices[0]-typedMsg.ColIndices[1]+1)
+					for colIndex := typedMsg.ColIndices[0]; colIndex <= typedMsg.ColIndices[1]; colIndex++ {
 						slice[rowIndex][colIndex] = sesh.state.getSquare(rowIndex, colIndex)
 					}
 				}
-				result := sesh.puzz.CheckSection(typedMsg.rowIndices[0], typedMsg.colIndices[0], slice)
-				sesh.solvers[typedMsg.solver].Tell(solver.CheckResult{
-					StartRow: typedMsg.rowIndices[0],
-					StartCol: typedMsg.colIndices[0],
+				result := sesh.puzz.CheckSection(typedMsg.RowIndices[0], typedMsg.ColIndices[0], slice)
+				sesh.solvers[typedMsg.Solver].Tell(solver.CheckResult{
+					StartRow: typedMsg.RowIndices[0],
+					StartCol: typedMsg.ColIndices[0],
 					Result:   result,
 				})
 			} else {

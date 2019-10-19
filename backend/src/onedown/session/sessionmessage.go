@@ -9,25 +9,25 @@ type SessionMessage interface{}
 
 type JoinSession struct {
 	SessionMessage
-	solver *solver.Solver
+	Solver *solver.Solver
 }
 
 type LeaveSession struct {
 	SessionMessage
-	solver uuid.UUID
+	Solver uuid.UUID
 }
 
 type WriteSquare struct {
 	SessionMessage
-	solver uuid.UUID
-	row    int
-	col    int
-	answer string
+	Solver uuid.UUID
+	Row    int
+	Col    int
+	Answer string
 }
 
 type CheckSquares struct {
 	SessionMessage
-	solver     uuid.UUID
-	rowIndices [2]int
-	colIndices [2]int
+	Solver     uuid.UUID
+	RowIndices [2]int
+	ColIndices [2]int
 }
