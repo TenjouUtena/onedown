@@ -87,6 +87,14 @@
 
 [[projects]]
   branch = "master"
+  digest = "1:7ccdfe9999d3d4613e314a99e60e4f2f5e766e0939f32307ed746853e267ad08"
+  name = "github.com/wangjia184/sortedset"
+  packages = ["."]
+  pruneopts = "UT"
+  revision = "f5d03557ba30bb7487f8e2783957af99d19624e1"
+
+[[projects]]
+  branch = "master"
   digest = "1:7c927f17d868be652a4cfe7de23e4292dea5b14d974a1d536e3b7cb7e79fd695"
   name = "golang.org/x/sys"
   packages = ["unix"]
@@ -116,6 +124,7 @@
     "github.com/gin-contrib/cors",
     "github.com/gin-gonic/gin",
     "github.com/google/uuid",
+    "github.com/wangjia184/sortedset",
   ]
   solver-name = "gps-cdcl"
   solver-version = 1
