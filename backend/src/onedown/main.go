@@ -10,6 +10,7 @@ import (
 	"strconv"
 
 	"github.com/TenjouUtena/onedown/backend/src/onedown/cassandra"
+	"github.com/TenjouUtena/onedown/backend/src/onedown/users"
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 )
@@ -231,5 +232,6 @@ func main() {
 			c.JSON(200, clues.Sqs)
 		}
 	})
+	router.POST("/users/new", users.Post)
 	router.Run("127.0.0.1:" + strconv.Itoa(cfg.Port))
 }

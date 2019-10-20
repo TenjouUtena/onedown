@@ -1,11 +1,13 @@
 package cassandra
 
 import (
-	"github.com/gocql/gocql"
-
+	"fmt"
 	"log"
+
+	"github.com/gocql/gocql"
 )
 
+//Session Current cassandra session
 var Session *gocql.Session
 
 func init() {
@@ -24,4 +26,14 @@ func init() {
 		log.Println(err)
 		return
 	}
+
+	cluster.Keyspace = "onedown"
+
+	err = session.Query("CREATE TABLE IF NOT EXISTS onedown.users (ID uuid, Email text, PRIMARY KEY(ID, email));").Exec()
+	if err != nil {
+		log.Println(err)
+		return
+	}
+
+	fmt.Println("Cassandra init done")
 }
