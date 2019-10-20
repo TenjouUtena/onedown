@@ -10,6 +10,14 @@
   version = "v1.3.0"
 
 [[projects]]
+  digest = "1:4e65420ca90a2c87b051b44ac6583971d9d23f405c536a3e5323edc9f4a46f91"
+  name = "github.com/gin-contrib/logger"
+  packages = ["."]
+  pruneopts = "UT"
+  revision = "0b3d4131bf19ad686caa625663ac1797f8bbdc70"
+  version = "v0.0.1"
+
+[[projects]]
   digest = "1:a4b5a6b32f33323c7850fae4ec085a0fbac3be93c057b6b8cef5bcabe24645ac"
   name = "github.com/gin-contrib/sse"
   packages = ["."]
@@ -36,6 +44,22 @@
   pruneopts = "UT"
   revision = "c823c79ea1570fb5ff454033735a8e68575d1d0f"
   version = "v1.3.0"
+
+[[projects]]
+  digest = "1:582b704bebaa06b48c29b0cec224a6058a09c86883aaddabde889cd1a5f73e1b"
+  name = "github.com/google/uuid"
+  packages = ["."]
+  pruneopts = "UT"
+  revision = "0cd6bf5da1e1c83f8b45653022c74f71af0538a4"
+  version = "v1.1.1"
+
+[[projects]]
+  digest = "1:e62657cca9badaa308d86e7716083e4c5933bb78e30a17743fc67f50be26f6f4"
+  name = "github.com/gorilla/websocket"
+  packages = ["."]
+  pruneopts = "UT"
+  revision = "c3e18be99d19e6b3e8f1559eea2c161a665c4b6b"
+  version = "v1.4.1"
 
 [[projects]]
   digest = "1:f5a2051c55d05548d2d4fd23d244027b59fbd943217df8aa3b5e170ac2fd6e1b"
@@ -70,12 +94,33 @@
   version = "1.0.1"
 
 [[projects]]
+  digest = "1:6cf4e9f5ea82d48699eed7a836781037621227fb8551d7571b82aabde422fec1"
+  name = "github.com/rs/zerolog"
+  packages = [
+    ".",
+    "internal/cbor",
+    "internal/json",
+    "log",
+  ]
+  pruneopts = "UT"
+  revision = "b806a5ecbe5347ad9ef05121fea8f4acc65fa5fc"
+  version = "v1.15.0"
+
+[[projects]]
   digest = "1:d0072748c62defde1ad99dde77f6ffce492a0e5aea9204077e497c7edfb86653"
   name = "github.com/ugorji/go"
   packages = ["codec"]
   pruneopts = "UT"
   revision = "2adff0894ba3bc2eeb9f9aea45fefd49802e1a13"
   version = "v1.1.4"
+
+[[projects]]
+  branch = "master"
+  digest = "1:7ccdfe9999d3d4613e314a99e60e4f2f5e766e0939f32307ed746853e267ad08"
+  name = "github.com/wangjia184/sortedset"
+  packages = ["."]
+  pruneopts = "UT"
+  revision = "f5d03557ba30bb7487f8e2783957af99d19624e1"
 
 [[projects]]
   branch = "master"
@@ -106,7 +151,13 @@
   analyzer-version = 1
   input-imports = [
     "github.com/gin-contrib/cors",
+    "github.com/gin-contrib/logger",
     "github.com/gin-gonic/gin",
+    "github.com/google/uuid",
+    "github.com/gorilla/websocket",
+    "github.com/rs/zerolog",
+    "github.com/rs/zerolog/log",
+    "github.com/wangjia184/sortedset",
   ]
   solver-name = "gps-cdcl"
   solver-version = 1

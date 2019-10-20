@@ -28,6 +28,8 @@ func (puzz Puzzle) MarshalJSON() ([]byte, error) {
 	}
 
 	jsonPuz := jsonPuzzle{
+		Width:       len(puzz.squares),
+		Height:      len(puzz.squares[0]),
 		AcrossClues: acrossClues,
 		DownClues:   downClues,
 		Squares:     squares,
@@ -37,6 +39,8 @@ func (puzz Puzzle) MarshalJSON() ([]byte, error) {
 
 /* Used to marshall a puzzle to the following format:
 {
+	width: 100,
+	height 100,
 	acrossClues: {
 		1: "Lorem ipsum",
 		...
@@ -68,6 +72,8 @@ func (puzz Puzzle) MarshalJSON() ([]byte, error) {
 }
 */
 type jsonPuzzle struct {
+	Width       int            `json:"width"`
+	Height      int            `json:"height"`
 	AcrossClues map[int]string `json:"acrossClues"`
 	DownClues   map[int]string `json:"downClues"`
 	Squares     []jsonSquare   `json:"squares"`
