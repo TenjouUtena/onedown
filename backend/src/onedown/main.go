@@ -4,17 +4,20 @@ import (
 	"encoding/json"
 	"flag"
 	"fmt"
-	"github.com/TenjouUtena/onedown/backend/src/onedown/puzzle"
-	"github.com/TenjouUtena/onedown/backend/src/onedown/session"
-	"github.com/gin-contrib/logger"
-	"github.com/rs/zerolog"
-	"github.com/rs/zerolog/log"
 	"os"
 	"path"
+	"strconv"
 	"strings"
 
+	"github.com/TenjouUtena/onedown/backend/src/onedown/cassandra"
+	"github.com/TenjouUtena/onedown/backend/src/onedown/puzzle"
+	"github.com/TenjouUtena/onedown/backend/src/onedown/session"
+	"github.com/TenjouUtena/onedown/backend/src/onedown/users"
 	"github.com/gin-contrib/cors"
+	"github.com/gin-contrib/logger"
 	"github.com/gin-gonic/gin"
+	"github.com/rs/zerolog"
+	"github.com/rs/zerolog/log"
 )
 
 func initLogger(cfg *Configuration) {
@@ -43,6 +46,7 @@ func initLogger(cfg *Configuration) {
 }
 
 func main() {
+
 	var cfg Configuration
 	cfg.GOPATH = os.Getenv("GOPATH")
 
@@ -67,22 +71,26 @@ func main() {
 	// set up session daemon
 	go session.InitDaemon(session.SessionDaemon)
 
+	cassandraSession := cassandra.Session
+	defer cassandraSession.Close()
+
 	// Init gin server
-	r := gin.Default()
-	r.Use(cors.Default()) // Needed to allow all API origins.
-	r.Use(logger.SetLogger(logger.Config{
-		Logger:         &log.Logger,
+	router := gin.Default()
+
+	router.Use(cors.Default()) // Needed to allow all API origins.
+	router.Use(logger.SetLogger(logger.Config{
+		Logger: &log.Logger,
 	}))
 
 	// set up session routes
-	session.InitSessionRoutes(r)
+	session.InitSessionRoutes(router)
 
 	// set up general routes
-	r.GET("/ping", func(c *gin.Context) {
+	router.GET("/ping", func(c *gin.Context) {
 		c.String(200, "PONG!")
 	})
 
-	r.GET("/puzzle/:puzid/get", func(c *gin.Context) {
+	router.GET("/puzzle/:puzid/get", func(c *gin.Context) {
 		finalPath := path.Join(cfg.PuzzleDirectory, c.Param("puzid")+".puz")
 		puzFile, err := os.Open(finalPath)
 
@@ -97,7 +105,10 @@ func main() {
 			}
 		}
 	})
-	err = r.Run() // listen and serve on 0.0.0.0:8080
+	router.POST("/users/new", users.Post)
+
+	router.Run(":" + strconv.Itoa(cfg.Port))
+
 	if err != nil {
 		log.Fatal().Err(err).Msg("Failed to initialize OneDown server!")
 	}

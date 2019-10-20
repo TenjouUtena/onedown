@@ -26,7 +26,6 @@ type WriteSquare struct {
 
 type CheckSquares struct {
 	SessionMessage
-	Solver     uuid.UUID
 	RowIndices [2]int
 	ColIndices [2]int
 }
@@ -34,4 +33,10 @@ type CheckSquares struct {
 type GetSessions struct {
 	SessionMessage
 	ResponseChannel chan []uuid.UUID
+}
+
+type RevealSquares struct {
+	SessionMessage
+	RowIndices [2]int
+	ColIndices [2]int
 }

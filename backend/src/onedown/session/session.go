@@ -6,6 +6,8 @@ import (
 	"github.com/rs/zerolog/log"
 )
 
+var nobody = uuid.MustParse("00000000-0000-0000-0000-000000000000")
+
 type session struct {
 	puzz        *puzzle.Puzzle
 	channel     chan SessionMessage
@@ -45,7 +47,7 @@ func doSession(sesh *session) {
 				FilledBy: typedMsg.Solver,
 			})
 		case CheckSquares:
-			if typedMsg.RowIndices[1] >= typedMsg.RowIndices[0] && typedMsg.ColIndices[1] >= typedMsg.ColIndices[0] {
+			ifValidIndices(typedMsg.RowIndices, typedMsg.ColIndices, func() {
 				slice := make([][]string, typedMsg.RowIndices[1]-typedMsg.RowIndices[0]+1)
 				for rowIndex := typedMsg.RowIndices[0]; rowIndex <= typedMsg.RowIndices[1]; rowIndex++ {
 					slice[rowIndex] = make([]string, typedMsg.ColIndices[0]-typedMsg.ColIndices[1]+1)
@@ -54,22 +56,48 @@ func doSession(sesh *session) {
 					}
 				}
 				result := sesh.puzz.CheckSection(typedMsg.RowIndices[0], typedMsg.ColIndices[0], slice)
-				sesh.solvers[typedMsg.Solver].Tell(CheckResult{
+				sesh.broadcastSolverMessage(CheckResult{
 					StartRow: typedMsg.RowIndices[0],
 					StartCol: typedMsg.ColIndices[0],
 					Result:   result,
 				})
-			} else {
-				log.Error().
-					Int("rowLow", typedMsg.RowIndices[0]).
-					Int("rowHigh", typedMsg.RowIndices[1]).
-					Int("colLow", typedMsg.ColIndices[0]).
-					Int("colHigh", typedMsg.ColIndices[1]).
-					Msg("Bad indices on check message.")
-			}
+			})
+		case RevealSquares:
+			ifValidIndices(typedMsg.RowIndices, typedMsg.ColIndices, func() {
+				updates := make([]SquareUpdated, 0)
+				solutions := sesh.puzz.GetSolutions(typedMsg.RowIndices, typedMsg.ColIndices)
+				for rowIndex, row := range solutions {
+					for colIndex, square := range row {
+						if sesh.state.getSquare(rowIndex, colIndex) != square {
+							sesh.state.putAnswer(nobody, rowIndex, colIndex, square)
+							updates = append(updates, SquareUpdated{
+								Row:           rowIndex,
+								Col:           colIndex,
+								NewValue:      square,
+								FilledBy:      nobody,
+							})
+						}
+					}
+				}
+				sesh.broadcastSolverMessage(SquaresUpdated{Updates: updates})
+			})
 		default:
 			log.Error().Msg("Invalid session message sent.")
 		}
+	}
+}
+
+func ifValidIndices(rowIndices [2]int, colIndices [2]int, thenDo func()) {
+	if rowIndices[1] >= rowIndices[0] && colIndices[1] >= colIndices[0] {
+		thenDo()
+	} else {
+		log.Error().
+			Int("rowLow", rowIndices[0]).
+			Int("rowHigh", rowIndices[1]).
+			Int("colLow", colIndices[0]).
+			Int("colHigh", colIndices[1]).
+			Msg("Bad indices on message.")
+
 	}
 }
 
