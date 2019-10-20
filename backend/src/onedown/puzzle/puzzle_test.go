@@ -52,7 +52,7 @@ func TestPuzzle_MarshalJSON(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	expected := `{"acrossClues":{"1":"1 Across","4":"4 Across","5":"5 Across"},"downClues":{"1":"1 Down","2":"2 Down","3":"3 Down"},"squares":[{"row":0,"col":0,"clueNum":1,"isBlack":false},{"row":0,"col":1,"clueNum":2,"isBlack":false},{"row":0,"col":2,"clueNum":3,"isBlack":false},{"row":1,"col":0,"clueNum":4,"isBlack":false},{"row":1,"col":1,"clueNum":0,"isBlack":false},{"row":1,"col":2,"clueNum":0,"isBlack":false},{"row":2,"col":0,"clueNum":5,"isBlack":false},{"row":2,"col":1,"clueNum":0,"isBlack":false},{"row":2,"col":2,"clueNum":0,"isBlack":false}]}`
+	expected := `{"width":3,"height":3,"acrossClues":{"1":"1 Across","4":"4 Across","5":"5 Across"},"downClues":{"1":"1 Down","2":"2 Down","3":"3 Down"},"squares":[{"row":0,"col":0,"clueNum":1,"isBlack":false},{"row":0,"col":1,"clueNum":2,"isBlack":false},{"row":0,"col":2,"clueNum":3,"isBlack":false},{"row":1,"col":0,"clueNum":4,"isBlack":false},{"row":1,"col":1,"clueNum":0,"isBlack":false},{"row":1,"col":2,"clueNum":0,"isBlack":false},{"row":2,"col":0,"clueNum":5,"isBlack":false},{"row":2,"col":1,"clueNum":0,"isBlack":false},{"row":2,"col":2,"clueNum":0,"isBlack":false}]}`
 
 	if string(puzzJson) != expected {
 		t.Errorf("Generated JSON was incorrect:\n Expected: %s\n Actual:  %s", expected, string(puzzJson))

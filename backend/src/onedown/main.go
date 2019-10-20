@@ -81,6 +81,7 @@ func main() {
 	r.GET("/ping", func(c *gin.Context) {
 		c.String(200, "PONG!")
 	})
+
 	r.GET("/puzzle/:puzid/get", func(c *gin.Context) {
 		finalPath := path.Join(cfg.PuzzleDirectory, c.Param("puzid")+".puz")
 		puzFile, err := os.Open(finalPath)
