@@ -23,7 +23,7 @@ func Post(c *gin.Context) {
 
 	gocqlUUID = gocql.TimeUUID()
 
-	err = cassandra.Session.Query("INSERT INTO onedown.users (ID, email) VALUES(?, ?);", gocqlUUID, user.Email).Exec()
+	err = cassandra.Session.Query("INSERT INTO users (ID, email) VALUES(?, ?);", gocqlUUID, user.Email).Exec()
 
 	if err != nil {
 		c.JSON(500, gin.H{"Error": err})

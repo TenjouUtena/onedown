@@ -28,8 +28,13 @@ func init() {
 	}
 
 	cluster.Keyspace = "onedown"
+	Session, err = cluster.CreateSession()
+	if err != nil {
+		log.Println(err)
+		return
+	}
 
-	err = Session.Query("CREATE TABLE IF NOT EXISTS onedown.users (ID uuid, Email text, PRIMARY KEY(ID, email));").Exec()
+	err = Session.Query("CREATE TABLE IF NOT EXISTS users (ID uuid, Email text, PRIMARY KEY(ID, email));").Exec()
 	if err != nil {
 		log.Println(err)
 		return
