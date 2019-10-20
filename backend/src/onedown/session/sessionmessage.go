@@ -1,7 +1,6 @@
 package session
 
 import (
-	"github.com/TenjouUtena/onedown/backend/src/onedown/solver"
 	"github.com/google/uuid"
 )
 
@@ -9,7 +8,7 @@ type SessionMessage interface{}
 
 type JoinSession struct {
 	SessionMessage
-	Solver *solver.Solver
+	Solver *Solver
 }
 
 type LeaveSession struct {

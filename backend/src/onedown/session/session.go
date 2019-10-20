@@ -2,7 +2,6 @@ package session
 
 import (
 	"github.com/TenjouUtena/onedown/backend/src/onedown/puzzle"
-	"github.com/TenjouUtena/onedown/backend/src/onedown/solver"
 	"github.com/google/uuid"
 )
 
@@ -10,7 +9,7 @@ type session struct {
 	puzz        *puzzle.Puzzle
 	channel     chan SessionMessage
 	state       PuzzleState
-	solvers     map[uuid.UUID]*solver.Solver
+	solvers     map[uuid.UUID]*Solver
 	initialized bool
 }
 
@@ -18,24 +17,24 @@ func doSession(sesh *session) {
 	for msg := range sesh.channel {
 		switch typedMsg := msg.(type) {
 		case JoinSession:
-			sesh.broadcastSolverMessage(solver.SolverJoined{
+			sesh.broadcastSolverMessage(SolverJoined{
 				Solver: typedMsg.Solver.Id,
 			})
 			sesh.solvers[typedMsg.Solver.Id] = typedMsg.Solver
-			typedMsg.Solver.Tell(solver.PuzzleState{
+			typedMsg.Solver.Tell(CurrentPuzzleState{
 				Solvers:     sesh.getSolverIds(),
 				Puzzle:      sesh.puzz,
 				PuzzleState: &sesh.state,
 			})
 		case LeaveSession:
 			delete(sesh.solvers, typedMsg.Solver)
-			sesh.broadcastSolverMessage(solver.SolverLeft{
+			sesh.broadcastSolverMessage(SolverLeft{
 				Solver: typedMsg.Solver,
 			})
 			// TODO any unmarshalling of solver?
 		case WriteSquare:
 			sesh.state.putAnswer(typedMsg.Solver, typedMsg.Row, typedMsg.Col, typedMsg.Answer)
-			sesh.broadcastSolverMessage(solver.SquareUpdated{
+			sesh.broadcastSolverMessage(SquareUpdated{
 				Row:      typedMsg.Row,
 				Col:      typedMsg.Col,
 				NewValue: typedMsg.Answer,
@@ -51,7 +50,7 @@ func doSession(sesh *session) {
 					}
 				}
 				result := sesh.puzz.CheckSection(typedMsg.RowIndices[0], typedMsg.ColIndices[0], slice)
-				sesh.solvers[typedMsg.Solver].Tell(solver.CheckResult{
+				sesh.solvers[typedMsg.Solver].Tell(CheckResult{
 					StartRow: typedMsg.RowIndices[0],
 					StartCol: typedMsg.ColIndices[0],
 					Result:   result,
@@ -77,7 +76,7 @@ func createSession(puzz *puzzle.Puzzle) *session {
 	return &sessionObj
 }
 
-func (sesh *session) broadcastSolverMessage(message solver.SolverMessage) {
+func (sesh *session) broadcastSolverMessage(message SolverMessage) {
 	for _, slv := range sesh.solvers {
 		slv.Tell(message)
 	}

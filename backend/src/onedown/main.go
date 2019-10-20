@@ -38,6 +38,9 @@ func main() {
 	r := gin.Default()
 
 	r.Use(cors.Default()) // Needed to allow all API origins.
+	// set up solver routes
+	session.InitSolverRoutes(r)
+
 	r.GET("/puzzle/:puzid/get", func(c *gin.Context) {
 		finalPath := path.Join(cfg.PuzzleDirectory, c.Param("puzid")+".puz")
 		puzFile, err := os.Open(finalPath)

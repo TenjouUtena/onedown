@@ -13,10 +13,13 @@ func InitDaemon(listen chan SessionDaemonMessage) {
 	var sessions = make(map[uuid.UUID]*session)
 	for msg := range listen {
 		switch typedMsg := msg.(type) {
-		case SpawnSession:
-			newSession := createSession(typedMsg.puzzle)
+		case SpawnSessionWithSolver:
+			newSession := createSession(typedMsg.Puzzle)
 			sessionId := uuid.New()
 			sessions[sessionId] = newSession
+			newSession.channel <- JoinSession{
+				Solver:         typedMsg.Solver,
+			}
 		case MessageForSession:
 			sesh := sessions[typedMsg.SessionId]
 			if sesh.initialized {
@@ -40,9 +43,10 @@ type KillDaemon struct {
 	SessionDaemonMessage
 }
 
-type SpawnSession struct {
+type SpawnSessionWithSolver struct {
 	SessionDaemonMessage
-	puzzle *puzzle.Puzzle
+	Solver *Solver
+	Puzzle *puzzle.Puzzle
 }
 
 type MessageForSession struct {

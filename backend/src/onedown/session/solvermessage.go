@@ -1,8 +1,7 @@
-package solver
+package session
 
 import (
 	"github.com/TenjouUtena/onedown/backend/src/onedown/puzzle"
-	"github.com/TenjouUtena/onedown/backend/src/onedown/session"
 	"github.com/google/uuid"
 )
 
@@ -24,11 +23,11 @@ type SquareUpdated struct {
 }
 
 // todo: add user information when informing of a solver, instead of just UUID
-type PuzzleState struct {
+type CurrentPuzzleState struct {
 	SolverMessage
 	Solvers     []uuid.UUID          `json:"solvers"`
 	Puzzle      *puzzle.Puzzle       `json:"puzzle"`
-	PuzzleState *session.PuzzleState `json:"puzzleState"`
+	PuzzleState *PuzzleState `json:"puzzleState"`
 }
 
 type SolverJoined struct {
