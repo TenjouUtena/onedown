@@ -3,6 +3,7 @@ package session
 import (
 	"github.com/TenjouUtena/onedown/backend/src/onedown/puzzle"
 	"github.com/google/uuid"
+	"github.com/rs/zerolog/log"
 )
 
 type session struct {
@@ -27,11 +28,14 @@ func doSession(sesh *session) {
 				PuzzleState: &sesh.state,
 			})
 		case LeaveSession:
-			delete(sesh.solvers, typedMsg.Solver)
-			sesh.broadcastSolverMessage(SolverLeft{
-				Solver: typedMsg.Solver,
-			})
-			// TODO any unmarshalling of solver?
+			oldSolver := sesh.solvers[typedMsg.Solver]
+			if oldSolver != nil {
+				close(oldSolver.responseChannel) // unmarshal solver
+				delete(sesh.solvers, typedMsg.Solver)
+				sesh.broadcastSolverMessage(SolverLeft{
+					Solver: typedMsg.Solver,
+				})
+			}
 		case WriteSquare:
 			sesh.state.putAnswer(typedMsg.Solver, typedMsg.Row, typedMsg.Col, typedMsg.Answer)
 			sesh.broadcastSolverMessage(SquareUpdated{
@@ -56,10 +60,15 @@ func doSession(sesh *session) {
 					Result:   result,
 				})
 			} else {
-				// log.error("Bad indices on check message.")
+				log.Error().
+					Int("rowLow", typedMsg.RowIndices[0]).
+					Int("rowHigh", typedMsg.RowIndices[1]).
+					Int("colLow", typedMsg.ColIndices[0]).
+					Int("colHigh", typedMsg.ColIndices[1]).
+					Msg("Bad indices on check message.")
 			}
 		default:
-			// log.error("Invalid session message sent.")
+			log.Error().Msg("Invalid session message sent.")
 		}
 	}
 }
@@ -70,6 +79,7 @@ func createSession(puzz *puzzle.Puzzle) *session {
 		puzz:        puzz,
 		channel:     channel,
 		state:       PuzzleState{},
+		solvers:     make(map[uuid.UUID]*Solver),
 		initialized: true,
 	}
 	go doSession(&sessionObj)

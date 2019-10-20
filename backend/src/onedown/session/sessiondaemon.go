@@ -16,21 +16,18 @@ func InitDaemon(listen chan SessionDaemonMessage) {
 	for msg := range listen {
 		switch typedMsg := msg.(type) {
 		case GetSessions:
-			sessions := make([]uuid.UUID, 0)
-			for _, sessionId:= range sessions {
-				sessions = append(sessions, sessionId)
+			sessionIds := make([]uuid.UUID, 0)
+			for sessionId, _:= range sessions {
+				sessionIds = append(sessionIds, sessionId)
 			}
-			typedMsg.ResponseChannel <- sessions
-		case SpawnSessionWithSolver:
+			typedMsg.ResponseChannel <- sessionIds
+		case SpawnSession:
 			newSession := createSession(typedMsg.Puzzle)
 			sessionId := uuid.New()
 			sessions[sessionId] = newSession
-			newSession.channel <- JoinSession{
-				Solver:         typedMsg.Solver,
-			}
 		case MessageForSession:
 			sesh := sessions[typedMsg.SessionId]
-			if sesh.initialized {
+			if sesh != nil && sesh.initialized {
 				sesh.channel <- typedMsg.Message
 			} else {
 				//log.Error("Message sent to session not on this daemon.")
@@ -51,9 +48,8 @@ type KillDaemon struct {
 	SessionDaemonMessage
 }
 
-type SpawnSessionWithSolver struct {
+type SpawnSession struct {
 	SessionDaemonMessage
-	Solver *Solver
 	Puzzle *puzzle.Puzzle
 }
 

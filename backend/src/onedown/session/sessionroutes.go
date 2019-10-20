@@ -54,23 +54,12 @@ func InitSessionRoutes(r *gin.Engine) {
 		}
 
 		finalPuzz := puzzle.ToPuzzle()
-
-		request := context.Request
-		responseWriter := context.Writer
-		sessionId := uuid.New()
-		socket, err := upgrader.Upgrade(responseWriter, request, nil)
-		if err != nil {
-			context.JSON(500, gin.H{"error": err})
-			return
-		}
-		solver := InitSolver(socket, sessionId)
-		SessionDaemon <- SpawnSessionWithSolver{
+		SessionDaemon <- SpawnSession{
 			Puzzle: &finalPuzz,
-			Solver: solver,
 		}
 	})
 	// join session as solver
-	r.POST("/session/:sessionId", func(context *gin.Context) {
+	r.GET("/session/:sessionId", func(context *gin.Context) {
 		// build socket
 		request := context.Request
 		responseWriter := context.Writer

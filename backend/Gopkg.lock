@@ -10,6 +10,14 @@
   version = "v1.3.0"
 
 [[projects]]
+  digest = "1:4e65420ca90a2c87b051b44ac6583971d9d23f405c536a3e5323edc9f4a46f91"
+  name = "github.com/gin-contrib/logger"
+  packages = ["."]
+  pruneopts = "UT"
+  revision = "0b3d4131bf19ad686caa625663ac1797f8bbdc70"
+  version = "v0.0.1"
+
+[[projects]]
   digest = "1:a4b5a6b32f33323c7850fae4ec085a0fbac3be93c057b6b8cef5bcabe24645ac"
   name = "github.com/gin-contrib/sse"
   packages = ["."]
@@ -86,6 +94,19 @@
   version = "1.0.1"
 
 [[projects]]
+  digest = "1:6cf4e9f5ea82d48699eed7a836781037621227fb8551d7571b82aabde422fec1"
+  name = "github.com/rs/zerolog"
+  packages = [
+    ".",
+    "internal/cbor",
+    "internal/json",
+    "log",
+  ]
+  pruneopts = "UT"
+  revision = "b806a5ecbe5347ad9ef05121fea8f4acc65fa5fc"
+  version = "v1.15.0"
+
+[[projects]]
   digest = "1:d0072748c62defde1ad99dde77f6ffce492a0e5aea9204077e497c7edfb86653"
   name = "github.com/ugorji/go"
   packages = ["codec"]
@@ -130,9 +151,12 @@
   analyzer-version = 1
   input-imports = [
     "github.com/gin-contrib/cors",
+    "github.com/gin-contrib/logger",
     "github.com/gin-gonic/gin",
     "github.com/google/uuid",
     "github.com/gorilla/websocket",
+    "github.com/rs/zerolog",
+    "github.com/rs/zerolog/log",
     "github.com/wangjia184/sortedset",
   ]
   solver-name = "gps-cdcl"

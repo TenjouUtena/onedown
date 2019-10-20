@@ -65,15 +65,19 @@ func main() {
 	log.Info().Msg("Iniitializing OneDown server...")
 
 	// set up session daemon
-	session.InitDaemon(session.SessionDaemon)
+	go session.InitDaemon(session.SessionDaemon)
 
+	// Init gin server
 	r := gin.Default()
-
 	r.Use(cors.Default()) // Needed to allow all API origins.
-	r.Use(logger.SetLogger())
+	r.Use(logger.SetLogger(logger.Config{
+		Logger:         &log.Logger,
+	}))
+
 	// set up session routes
 	session.InitSessionRoutes(r)
 
+	// set up general routes
 	r.GET("/ping", func(c *gin.Context) {
 		c.String(200, "PONG!")
 	})
