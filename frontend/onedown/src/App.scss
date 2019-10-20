@@ -55,6 +55,7 @@ $selector-padding: 2px;
   overflow: auto;
   max-height: $square-size*6;
   width: 550px;
+  height: $square-size*6;
 }
 
 .AcrossList {
@@ -68,4 +69,17 @@ $selector-padding: 2px;
 
 .Clue[selstyle=selected] {
   background-color: lightskyblue;
+}
+
+
+.SessionNav {
+  background-color: aliceblue;
+  position: absolute;
+  width: 1200px;
+  height: 800px;
+  z-index: 99;
+  border-style: solid;
+  border-width: 1px;
+  border-color: black;
+  //visibility: hidden;
 }

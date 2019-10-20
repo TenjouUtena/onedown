@@ -1,75 +1,16 @@
 import React from 'react';
 import './App.scss';
+import { SessionNav } from './SessionNav';
+import { AcrossClueList, DownClueList } from './Clue';
+import { w3cwebsocket as W3CWebSocket } from "websocket";
 
 var sqsize=40;
 var curborder=2;
 
-var dirs = {
+export var dirs = {
   ACROSS: 'across',
   DOWN: 'down'
 }
-
-class Clue extends React.Component {
-
-  constructor() {
-    super()
-
-    this.ref = React.createRef()
-  }
-
-  componentDidUpdate () {
-   if(this.props.value.selected) {
-      this.ref.current.scrollIntoView()
-    }
-  }
-
-  render() {
-    const value = this.props.value;
-
-    let text = String(value.number) + ". " + value.text
-    return <div ref = {this.ref} className="Clue" selstyle={value.selected ? 'selected' : 'not-selected'} onClick={(e) => this.props.onClick(e,value.number, value.dir)}>{text}</div>
-  }
-}
-
-
-class ClueList extends React.Component {
-  dir = dirs.ACROSS;
-  cname = "AcrossList";
-
-  render() {
-    const value = this.props.value;
-
-
-    if (value) {
-            return (
-        <div className={this.cname} style={this.props.style}>        {
-          Object.keys(value.values).map((k) => {
-            let vv = {
-              number: k,
-              text: value.values[k],
-              dir: this.dir,
-              selected: value.selected == k
-            }
-          return (<Clue value={vv} key={k} onClick={this.props.onClick}/>);
-          })
-                        }
-        </div>
-      );}
-    else {
-      return <div />
-    }
-  }
-}
-
-
-class AcrossClueList extends ClueList {}
-
-class DownClueList extends ClueList {
-  dir = dirs.DOWN
-  cname = "DownList"
-}
-
-
 
 class Selector extends React.Component {
 
@@ -119,6 +60,7 @@ class Square extends React.Component {
 }
 
 class Game extends React.Component {
+  
   state = {
     squares: [],
     acrossClues: {},
@@ -136,13 +78,28 @@ class Game extends React.Component {
   constructor() {
     super();
 
+    //const client : W3CWebSocket = null;
+    const client = null;
+    this.client = client;
+
     this.handlePuzzleInputChange = this.handlePuzzleInputChange.bind(this)
     this.loadPuzzle = this.loadPuzzle.bind(this)
     this.handlePuzzleLoad = this.handlePuzzleLoad.bind(this)
     this.handleSquareClick = this.handleSquareClick.bind(this)
     this.handleClueClick = this.handleClueClick.bind(this)
     this.calcClueNums = this.calcClueNums.bind(this)
+    this.loadPuzzleSess = this.loadPuzzleSess.bind(this)
 
+  }
+
+  onClientMessage(message) {
+
+  }
+
+  buildws (url) {
+    this.client = new W3CWebSocket(url)
+    this.client.onmessage = (mess) => this.onClientMessage(mess);
+    this.client.onopen = () => console.log("Connected to Session.")
   }
   
   findSquareFromArray (sqs,row,col) {
@@ -239,7 +196,7 @@ class Game extends React.Component {
   }
 
   loadPuzzle () {
-    fetch("http://localhost:8080/puzzle/" + this.state.puzzleInput + "/get")
+    /*fetch("http://localhost:8080/puzzle/" + this.state.puzzleInput + "/get")
     .then(res => {
       if(!res.ok) throw(res);
       return(res);
@@ -255,7 +212,11 @@ class Game extends React.Component {
     .catch(res => {
       this.setState({ gameMessage: "Error Loading Puzzle..." });
       console.log(res)
-    });
+    });*/
+  }
+
+  loadPuzzleSess () {
+
   }
 
   componentDidMount() {
@@ -269,7 +230,7 @@ class Game extends React.Component {
 
   handlePuzzleLoad (event) {
     this.setState({gameMessage: ""})
-    this.loadPuzzle();
+    this.loadPuzzleSess();
   }
 
   render () {
@@ -295,13 +256,11 @@ class Game extends React.Component {
 
       return (
       <div className="Game">
+
+        <SessionNav buildws={(e) => this.buildws(e)} />
+
         <div>
           <span className="GameMessage">{this.state.gameMessage}</span>
-        </div>
-        <div>
-          <span>What x do you want?  </span>
-          <input type='text' value={this.state.puzzleInput} onChange={this.handlePuzzleInputChange}/>
-          <input type='button' value="load puzzle" onClick={this.handlePuzzleLoad}/>
         </div>
        <div className="Grid">
        {squares.map( (t, i) => {
