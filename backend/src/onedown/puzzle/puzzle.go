@@ -4,7 +4,7 @@ type Puzzle struct {
 	squares     [][]square
 	AcrossClues map[int]*Clue
 	DownClues   map[int]*Clue
-	Metadata puzzleMeta
+	Metadata    puzzleMeta
 }
 
 // CheckSection checks a set of squares with top left at fromRow, fromCol coordinates against the correct solution.
@@ -15,7 +15,7 @@ func (puzz *Puzzle) CheckSection(fromRow int, fromCol int, answers [][]string) [
 		result[checkRow] = make([]bool, len(answers[checkRow]))
 		for checkCol := 0; checkCol < len(answers[checkRow]); checkCol++ {
 			answerToCheck := answers[checkRow][checkCol]
-			squareToCheck := puzz.squares[fromRow + checkRow][fromCol + checkCol]
+			squareToCheck := puzz.squares[fromRow+checkRow][fromCol+checkCol]
 			result[checkRow][checkCol] = squareToCheck.correctValue == answerToCheck
 		}
 	}
@@ -23,10 +23,10 @@ func (puzz *Puzzle) CheckSection(fromRow int, fromCol int, answers [][]string) [
 }
 
 type puzzleMeta struct {
-	Title string
-	Author string
+	Title     string
+	Author    string
 	Copyright string
-	Notes string
+	Notes     string
 }
 
 type square struct {
