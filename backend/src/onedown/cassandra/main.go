@@ -7,7 +7,7 @@ import (
 	"github.com/gocql/gocql"
 )
 
-//Session Current cassandra session
+//Session Current cassandra Session
 var Session *gocql.Session
 
 func init() {
@@ -15,13 +15,13 @@ func init() {
 
 	cluster := gocql.NewCluster("127.0.0.1")
 
-	session, err := cluster.CreateSession()
+	Session, err = cluster.CreateSession()
 	if err != nil {
 		log.Println(err)
 		return
 	}
 
-	err = session.Query("CREATE KEYSPACE IF NOT EXISTS onedown WITH REPLICATION = {'class' : 'SimpleStrategy','replication_factor':1};").Exec()
+	err = Session.Query("CREATE KEYSPACE IF NOT EXISTS onedown WITH REPLICATION = {'class' : 'SimpleStrategy','replication_factor':1};").Exec()
 	if err != nil {
 		log.Println(err)
 		return
@@ -29,7 +29,7 @@ func init() {
 
 	cluster.Keyspace = "onedown"
 
-	err = session.Query("CREATE TABLE IF NOT EXISTS onedown.users (ID uuid, Email text, PRIMARY KEY(ID, email));").Exec()
+	err = Session.Query("CREATE TABLE IF NOT EXISTS onedown.users (ID uuid, Email text, PRIMARY KEY(ID, email));").Exec()
 	if err != nil {
 		log.Println(err)
 		return
