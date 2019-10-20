@@ -5,6 +5,7 @@ import (
 	"github.com/google/uuid"
 )
 
+// SolverMessage interface represents messages being sent to a solver (to be sent over websocket)
 type SolverMessage interface{}
 
 type CheckResult struct {
@@ -20,6 +21,11 @@ type SquareUpdated struct {
 	Col      int       `json:"col"`
 	NewValue string    `json:"newValue"`
 	FilledBy uuid.UUID `json:"filledBy"`
+}
+
+type SquaresUpdated struct {
+	SolverMessage
+	Updates []SquareUpdated `json:"updates"`
 }
 
 // todo: add user information when informing of a solver, instead of just UUID
@@ -38,4 +44,9 @@ type SolverJoined struct {
 type SolverLeft struct {
 	SolverMessage
 	Solver uuid.UUID `json:"solver"`
+}
+
+type PuzzleSolved struct {
+	SolverMessage
+	FinalLayout [][]string `json:"finalLayout"`
 }

@@ -16,9 +16,16 @@ func (state *PuzzleState) putAnswer(solver uuid.UUID, row int, col int, answer s
 }
 
 func (state *PuzzleState) getSquare(row int, col int) string {
-	switch answer := state.filledSquares[row][col].PeekMax().Value.(type) {
+	var answer interface {}
+	// if this square has been revealed, show the revealed square
+	if state.filledSquares[row][col].GetByKey(nobody.String()) != nil {
+		answer = state.filledSquares[row][col].GetByKey(nobody.String()).Value
+	} else {
+		answer = state.filledSquares[row][col].PeekMax().Value
+	}
+	switch strAnswer := answer.(type) {
 	case string:
-		return answer
+		return strAnswer
 	default:
 		return ""
 	}
