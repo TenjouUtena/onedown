@@ -2,8 +2,11 @@ package users
 
 import (
 	"net/http"
+
+	"github.com/gin-gonic/gin"
 )
 
-func Post(writer http.ResponseWriter, request *http.Request) {
+//Post Users post handler
+func Post(writer gin.ResponseWriter, request *http.Request) (err error) {
 
 }
