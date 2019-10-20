@@ -14,7 +14,7 @@ var upgrader = websocket.Upgrader{
 	WriteBufferSize: 1024,
 }
 
-func InitSolverRoutes(r *gin.Engine) {
+func InitSessionRoutes(r *gin.Engine) {
 	// create session with puzzle file
 	r.GET("/session", func(context *gin.Context) {
 		channel := make(chan []uuid.UUID)

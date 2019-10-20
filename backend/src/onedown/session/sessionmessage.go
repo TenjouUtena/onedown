@@ -30,3 +30,8 @@ type CheckSquares struct {
 	RowIndices [2]int
 	ColIndices [2]int
 }
+
+type GetSessions struct {
+	SessionMessage
+	ResponseChannel chan []uuid.UUID
+}
