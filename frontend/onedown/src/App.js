@@ -93,13 +93,25 @@ class Game extends React.Component {
   }
 
   onClientMessage(message) {
-
+    const m = JSON.parse(message.data)
+    if(m.SolverMessage === null) {
+      const puz = m.puzzle;
+      const pw = this.calcClueNums(puz.squares)
+      this.setState({width: puz.width,
+                  height: puz.height,
+                  acrossClues: puz.acrossClues,
+                  downClues: puz.downClues,
+                  squares: pw
+      })
+    }
   }
 
   buildws (url) {
     this.client = new W3CWebSocket(url)
     this.client.onmessage = (mess) => this.onClientMessage(mess);
     this.client.onopen = () => console.log("Connected to Session.")
+
+    document.getElementsByClassName('SessionNav')[0].style.display='none'
   }
   
   findSquareFromArray (sqs,row,col) {
