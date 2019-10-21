@@ -5,7 +5,7 @@ import (
 	"github.com/google/uuid"
 )
 
-// SolverMessage interface represents messages being sent to a solver (to be sent over websocket)
+// SolverMessage interface represents sessionMessages being sent to a solver (to be sent over websocket)
 type SolverMessage interface{}
 
 type CheckResult struct {
