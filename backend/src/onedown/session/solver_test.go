@@ -12,7 +12,7 @@ func TestSessionMessage_Unmarshal(t *testing.T) {
 		"}"
 	messagePayloadBytes := []byte(messagePayload)
 	expected := MessageForSession{
-		SessionId: uuid.MustParse("00000000-0000-0000-0000-000000000000"),
+		Session: uuid.MustParse("00000000-0000-0000-0000-000000000000"),
 		Message: WriteSquare{
 			Solver: uuid.MustParse("00000000-0000-0000-0000-000000000000"),
 			Row:    0,

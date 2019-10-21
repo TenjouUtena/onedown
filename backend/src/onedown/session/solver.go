@@ -30,15 +30,19 @@ func doSolverChannel(solver *Solver) {
 			log.Error().Err(err).Str("solverId", solver.Id.String()).Msg("Error when writing message to socket.")
 		}
 	}
-	log.Debug().Str("solverId", solver.Id.String()).Msg("Solver channel closed, closing socket.")
-	err := solver.socket.Close()
-	if err != nil {
-		log.Error().Err(err).Str("solverId", solver.Id.String()).Msg("Error closing socket.")
-	}
+	log.Debug().Str("solverId", solver.Id.String()).Msg("Solver channel closed.")
 }
 
 func doSolverSocket(solver *Solver) {
-	for {
+	defer func() {
+		err := solver.socket.Close()
+		if err != nil {
+			log.Error().Err(err).Str("solverId", solver.Id.String()).Msg("Error closing socket.")
+		}
+	}()
+
+	socketLive := true
+	for socketLive {
 		messageType, messageBytes, err := solver.socket.ReadMessage()
 		if err != nil {
 			// TODO At the moment this will error when a user leaves a session. need to figure that one out
@@ -56,20 +60,29 @@ func doSolverSocket(solver *Solver) {
 					Bytes("payload", messageBytes).
 					Msg("Bad message payload.")
 			} else {
-				SessionDaemon <- unmarshalledMessage
+				switch _ := unmarshalledMessage.Message.(type) {
+				case LeaveSession:
+					log.Info().Str("solverId", solver.Id.String()).Msg("Solver is leaving.")
+					socketLive = false // break out of loop
+				default:
+					SessionDaemon <- unmarshalledMessage
+				}
 			}
 		}
 	}
-	// TODO: upon socket closing, we should kick the user out of the puzzle
+
+	// Inform Daemon user has left
+	SessionDaemon <- UserDisconnected{Solver: solver.Id}
 }
 
 // We are expecting messages in this JSON format, with payload being the *fields* of the struct of type `name`:
-/*  {
-		"name":"SomeMessageType",
-		"session":"00000000-0000-0000-0000-000000000000",
-		"payload":"..."
-	}
- */
+/*
+{
+	"name":"SomeMessageType",
+	"session":"00000000-0000-0000-0000-000000000000",
+	"payload":"..."
+}
+*/
 func unmarshallSocketMessage(messagePayload []byte) (MessageForSession, error) {
 	stringMapPayload := make(map[string]string)
 	err := json.Unmarshal(messagePayload, &stringMapPayload)
@@ -77,7 +90,7 @@ func unmarshallSocketMessage(messagePayload []byte) (MessageForSession, error) {
 		return MessageForSession{}, err
 	}
 	typeName := stringMapPayload["name"]
-	sessionId, err := uuid.Parse(stringMapPayload["session"])
+	session, err := uuid.Parse(stringMapPayload["session"])
 	if err != nil {
 		return MessageForSession{}, err
 	}
@@ -88,12 +101,12 @@ func unmarshallSocketMessage(messagePayload []byte) (MessageForSession, error) {
 		return MessageForSession{}, err
 	}
 	return MessageForSession{
-		SessionId: sessionId,
-		Message:   msg,
+		Session: session,
+		Message: msg,
 	}, nil
 }
 
-func InitSolver(socket *websocket.Conn, sessionId uuid.UUID) *Solver {
+func InitSolver(socket *websocket.Conn, session uuid.UUID) *Solver {
 	id := uuid.New()
 	channel := make(chan SolverMessage)
 	solver := &Solver{
@@ -106,7 +119,7 @@ func InitSolver(socket *websocket.Conn, sessionId uuid.UUID) *Solver {
 	go doSolverSocket(solver)
 	// join the session
 	SessionDaemon <- MessageForSession{
-		SessionId: sessionId,
+		Session: session,
 		Message: JoinSession{
 			Solver: solver,
 		},
