@@ -81,5 +81,6 @@ $selector-padding: 2px;
   border-style: solid;
   border-width: 1px;
   border-color: black;
-  //visibility: hidden;
+  transition: all 1.5s;
+  overflow: hidden;
 }

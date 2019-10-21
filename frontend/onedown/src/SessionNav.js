@@ -15,7 +15,6 @@ export class SessionNav extends React.Component {
   }
 
   handleChange(event) {
-    //console.log(event.target.files[0])
     this.setState({ uploadFile: event.target.files[0] });
   }
 
@@ -52,10 +51,10 @@ export class SessionNav extends React.Component {
   }
 
   connectSession(event) {
-      //console.log(this.selector.current.value)
       this.props.buildws("ws://localhost:8080/session/" + this.selector.current.value)
 
-      //hide this
+      document.getElementsByClassName('SessionNav')[0].style.height=0;
+      document.getElementsByClassName('SessionNav')[0].style.borderStyle='none';
   }
 
   componentDidMount() {

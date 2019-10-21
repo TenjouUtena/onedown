@@ -78,17 +78,11 @@ class Game extends React.Component {
   constructor() {
     super();
 
-    //const client : W3CWebSocket = null;
-    const client = null;
-    this.client = client;
+    this.client = null;
 
-    this.handlePuzzleInputChange = this.handlePuzzleInputChange.bind(this)
-    this.loadPuzzle = this.loadPuzzle.bind(this)
-    this.handlePuzzleLoad = this.handlePuzzleLoad.bind(this)
     this.handleSquareClick = this.handleSquareClick.bind(this)
     this.handleClueClick = this.handleClueClick.bind(this)
     this.calcClueNums = this.calcClueNums.bind(this)
-    this.loadPuzzleSess = this.loadPuzzleSess.bind(this)
 
   }
 
@@ -111,7 +105,7 @@ class Game extends React.Component {
     this.client.onmessage = (mess) => this.onClientMessage(mess);
     this.client.onopen = () => console.log("Connected to Session.")
 
-    document.getElementsByClassName('SessionNav')[0].style.display='none'
+
   }
   
   findSquareFromArray (sqs,row,col) {
@@ -207,42 +201,15 @@ class Game extends React.Component {
     return sqs;
   }
 
-  loadPuzzle () {
-    /*fetch("http://localhost:8080/puzzle/" + this.state.puzzleInput + "/get")
-    .then(res => {
-      if(!res.ok) throw(res);
-      return(res);
-    })
-    .then(res => res.json())
-    .then(jj => {
-      //this.resetSelection(jj.squares)
-      jj.squares = this.calcClueNums(jj.squares)
-      this.setState({ squares: jj.squares,
-                      acrossClues: jj.acrossClues,
-                      downClues: jj.downClues})
-    })
-    .catch(res => {
-      this.setState({ gameMessage: "Error Loading Puzzle..." });
-      console.log(res)
-    });*/
-  }
-
-  loadPuzzleSess () {
+  showSessionNav (event) {
+    document.getElementsByClassName('SessionNav')[0].style.borderStyle='solid';
+    document.getElementsByClassName('SessionNav')[0].style.height="800px";
 
   }
+
 
   componentDidMount() {
-    this.loadPuzzle();
     this.selectSquare(0,0);
-  }
-
-  handlePuzzleInputChange (event) {
-    this.setState({puzzleInput: event.target.value})
-  }
-
-  handlePuzzleLoad (event) {
-    this.setState({gameMessage: ""})
-    this.loadPuzzleSess();
   }
 
   render () {
@@ -286,6 +253,7 @@ class Game extends React.Component {
 
         <AcrossClueList className="AcrossClueList" value={aval} style={astyle} onClick={this.handleClueClick} />
         <DownClueList className="DownClueList" value={dval} style={dstyle} onClick={this.handleClueClick}/>
+        <button className="SessButt" onClick={(e) => this.showSessionNav(e)}>Show Session</button>
        </div>
 
       );}
