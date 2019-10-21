@@ -1,0 +1,86 @@
+$square-size: 40px;
+$selector-padding: 2px;
+
+.Square {
+  position: absolute;
+  border:1px;
+  border-style: solid;
+  width: $square-size - 1px;
+  height: $square-size - 1px;
+}
+
+.Square[selstyle=selected] {
+  background-color: lightgrey;
+}
+
+.Game {
+  position: absolute;
+  top: 50px;
+  left: 50px;
+}
+
+.Grid {
+  position: absolute;
+  top: 50px;
+  left: 0px;
+}
+
+.SquareClue {
+  position: absolute;
+  color: darkgrey;
+  font-size: 11px;
+  top: -1px;
+  left: 2px;
+}
+
+.Square#black {
+  background: #000000;
+}
+
+
+.Selector {
+  position: absolute;
+  border-color: palevioletred;
+  border-width: 2px;
+  border-style: solid;
+  width: $square-size - (3px + ($selector-padding*2));
+  height: $square-size - (3px + ($selector-padding*2));
+}
+
+@mixin clue-list {
+  border-style: solid;
+  border-width: 1px;
+  left: $square-size*16;
+  position: absolute;
+  overflow: auto;
+  max-height: $square-size*6;
+  width: 550px;
+  height: $square-size*6;
+}
+
+.AcrossList {
+  @include clue-list;
+}
+
+.DownList {
+  @include clue-list;
+}
+
+
+.Clue[selstyle=selected] {
+  background-color: lightskyblue;
+}
+
+
+.SessionNav {
+  background-color: aliceblue;
+  position: absolute;
+  width: 1200px;
+  height: 800px;
+  z-index: 99;
+  border-style: solid;
+  border-width: 1px;
+  border-color: black;
+  transition: all 1.5s;
+  overflow: hidden;
+}
