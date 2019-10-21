@@ -60,6 +60,7 @@ func doSolverSocket(solver *Solver) {
 			}
 		}
 	}
+	// TODO: upon socket closing, we should kick the user out of the puzzle
 }
 
 // We are expecting messages in this JSON format, with payload being the *fields* of the struct of type `name`:
