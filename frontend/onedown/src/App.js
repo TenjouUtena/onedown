@@ -89,8 +89,9 @@ class Game extends React.Component {
 
   onClientMessage(message) {
     const m = JSON.parse(message.data)
-    if(m.SolverMessage === null) {
-      const puz = m.puzzle;
+    const p = m.payload
+    if(m.name === "CurrentPuzzleState") {
+      const puz = p.puzzle;
       const pw = this.calcClueNums(puz.squares)
       this.setState({width: puz.width,
                   height: puz.height,
@@ -118,11 +119,11 @@ class Game extends React.Component {
     if(this.client) {
       var mess = {name:"WriteSquare",
                   session:"00000000-0000-0000-0000-000000000000",
-                  payload: {
+                  payload: JSON.stringify({
                     row: this.state.selectorPos.row,
                     col: this.state.selectorPos.col,
                     answer: event.key
-                  }}
+                  })}
       this.client.send(JSON.stringify(mess))
     }
   }
