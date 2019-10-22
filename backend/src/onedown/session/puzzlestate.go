@@ -16,7 +16,7 @@ func (state *PuzzleState) putAnswer(solver uuid.UUID, row int, col int, answer s
 }
 
 func (state *PuzzleState) getSquare(row int, col int) string {
-	var answer interface {}
+	var answer interface{}
 	// if this square has been revealed, show the revealed square
 	if state.filledSquares[row][col].GetByKey(nobody.String()) != nil {
 		answer = state.filledSquares[row][col].GetByKey(nobody.String()).Value

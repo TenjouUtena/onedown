@@ -38,12 +38,33 @@
   version = "v1.4.0"
 
 [[projects]]
+  branch = "master"
+  digest = "1:ec87fef741c7aa17290f30437f98fea9ec82e026a197d85aa522d1838b4d8ce6"
+  name = "github.com/gocql/gocql"
+  packages = [
+    ".",
+    "internal/lru",
+    "internal/murmur",
+    "internal/streams",
+  ]
+  pruneopts = "UT"
+  revision = "07ace3bab0f84bb88477bab5d79ba1f7e1da0169"
+
+[[projects]]
   digest = "1:318f1c959a8a740366fce4b1e1eb2fd914036b4af58fbd0a003349b305f118ad"
   name = "github.com/golang/protobuf"
   packages = ["proto"]
   pruneopts = "UT"
   revision = "c823c79ea1570fb5ff454033735a8e68575d1d0f"
   version = "v1.3.0"
+
+[[projects]]
+  digest = "1:e4f5819333ac698d294fe04dbf640f84719658d5c7ce195b10060cc37292ce79"
+  name = "github.com/golang/snappy"
+  packages = ["."]
+  pruneopts = "UT"
+  revision = "2a8bb927dd31d8daada140a5d09578521ce5c36a"
+  version = "v0.0.1"
 
 [[projects]]
   digest = "1:582b704bebaa06b48c29b0cec224a6058a09c86883aaddabde889cd1a5f73e1b"
@@ -60,6 +81,14 @@
   pruneopts = "UT"
   revision = "c3e18be99d19e6b3e8f1559eea2c161a665c4b6b"
   version = "v1.4.1"
+
+[[projects]]
+  branch = "master"
+  digest = "1:364b908b9b27b97ab838f2f6f1b1f46281fa29b978a037d72a9b1d4f6d940190"
+  name = "github.com/hailocab/go-hostpool"
+  packages = ["."]
+  pruneopts = "UT"
+  revision = "e80d13ce29ede4452c43dea11e79b9bc8a15b478"
 
 [[projects]]
   digest = "1:f5a2051c55d05548d2d4fd23d244027b59fbd943217df8aa3b5e170ac2fd6e1b"
@@ -139,6 +168,14 @@
   version = "v8.18.2"
 
 [[projects]]
+  digest = "1:2d1fbdc6777e5408cabeb02bf336305e724b925ff4546ded0fa8715a7267922a"
+  name = "gopkg.in/inf.v0"
+  packages = ["."]
+  pruneopts = "UT"
+  revision = "d2d2541c53f18d2a059457998ce2876cc8e67cbf"
+  version = "v0.9.1"
+
+[[projects]]
   digest = "1:4d2e5a73dc1500038e504a8d78b986630e3626dc027bc030ba5c75da257cdb96"
   name = "gopkg.in/yaml.v2"
   packages = ["."]
@@ -153,6 +190,7 @@
     "github.com/gin-contrib/cors",
     "github.com/gin-contrib/logger",
     "github.com/gin-gonic/gin",
+    "github.com/gocql/gocql",
     "github.com/google/uuid",
     "github.com/gorilla/websocket",
     "github.com/rs/zerolog",

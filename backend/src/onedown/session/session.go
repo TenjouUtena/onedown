@@ -71,10 +71,10 @@ func doSession(sesh *session) {
 						if sesh.state.getSquare(rowIndex, colIndex) != square {
 							sesh.state.putAnswer(nobody, rowIndex, colIndex, square)
 							updates = append(updates, SquareUpdated{
-								Row:           rowIndex,
-								Col:           colIndex,
-								NewValue:      square,
-								FilledBy:      nobody,
+								Row:      rowIndex,
+								Col:      colIndex,
+								NewValue: square,
+								FilledBy: nobody,
 							})
 						}
 					}

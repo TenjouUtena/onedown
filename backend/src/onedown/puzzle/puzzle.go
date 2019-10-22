@@ -24,9 +24,9 @@ func (puzz *Puzzle) CheckSection(fromRow int, fromCol int, answers [][]string) [
 
 // will panic if bad indices are passed. don't do that.
 func (puzz *Puzzle) GetSolutions(rowIndices [2]int, colIndices [2]int) [][]string {
-	result := make([][]string, rowIndices[1] - rowIndices[0] + 1)
+	result := make([][]string, rowIndices[1]-rowIndices[0]+1)
 	for rowIndex, row := range result {
-		row = make([]string, colIndices[1] - colIndices[0] + 1)
+		row = make([]string, colIndices[1]-colIndices[0]+1)
 		for colIndex, _ := range row {
 			result[rowIndex][colIndex] = puzz.squares[rowIndex][colIndex].correctValue
 		}
