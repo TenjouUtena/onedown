@@ -7,6 +7,7 @@ $selector-padding: 2px;
   border-style: solid;
   width: $square-size - 1px;
   height: $square-size - 1px;
+  
 }
 
 .Square[selstyle=selected] {

@@ -52,7 +52,8 @@ class Square extends React.Component {
     }
     return (
       <div className="Square" style={style} id={black} onClick={(e) => this.props.onClick(e, this.props.value.row, this.props.value.col)}
-                              selstyle={this.props.value.selected ? 'selected' : 'notSelected'}>
+                              onKeyPress={(e) => this.props.onKeyPress(e)}
+                              selstyle={this.props.value.selected ? 'selected' : 'notSelected'} tabIndex="0">
         {clue}
       </div>
     );
@@ -110,6 +111,20 @@ class Game extends React.Component {
   
   findSquareFromArray (sqs,row,col) {
     return sqs.filter(e => (e.col === col && e.row === row))[0]
+  }
+
+  handleKeys (event) {
+    console.log(event.key)
+    if(this.client) {
+      var mess = {name:"WriteSquare",
+                  session:"00000000-0000-0000-0000-000000000000",
+                  payload: {
+                    row: this.state.selectorPos.row,
+                    col: this.state.selectorPos.col,
+                    answer: event.key
+                  }}
+      this.client.send(JSON.stringify(mess))
+    }
   }
   
   calcClueNums(sqs) {
@@ -244,7 +259,7 @@ class Game extends React.Component {
        <div className="Grid">
        {squares.map( (t, i) => {
           return (
-          <Square value={this.state.squares[i]} key={(t.row*100)+t.col} onClick={this.handleSquareClick}/> 
+          <Square value={this.state.squares[i]} key={(t.row*100)+t.col} onClick={this.handleSquareClick} onKeyPress={(e) => (this.handleKeys(e))}/> 
           );
        }
        )}
