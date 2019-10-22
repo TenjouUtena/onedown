@@ -10,6 +10,7 @@ import (
 	"strings"
 
 	"github.com/TenjouUtena/onedown/backend/src/onedown/cassandra"
+	"github.com/TenjouUtena/onedown/backend/src/onedown/credentials"
 	"github.com/TenjouUtena/onedown/backend/src/onedown/puzzle"
 	"github.com/TenjouUtena/onedown/backend/src/onedown/session"
 	"github.com/TenjouUtena/onedown/backend/src/onedown/users"
@@ -66,7 +67,10 @@ func main() {
 	}
 
 	initLogger(&cfg)
-	log.Info().Msg("Iniitializing OneDown server...")
+	log.Info().Msg("Initializing OneDown server...")
+
+	//Load Google Oauth Credentials
+	credentials.LoadCredentials(cfg.CredentialFile)
 
 	// set up session daemon
 	go session.InitDaemon(session.SessionDaemon)
