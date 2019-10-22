@@ -110,6 +110,7 @@ func main() {
 		}
 	})
 	router.POST("/users/new", users.Post)
+	router.GET("/login", credentials.LoginHandler)
 
 	router.Run(":" + strconv.Itoa(cfg.Port))
 

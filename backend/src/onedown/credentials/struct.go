@@ -19,22 +19,21 @@ type Credentials struct {
 }
 
 func LoadCredentials(fileName string) {
-	var c Credentials
-	file, err := ioutil.ReadFile(fileName)
+	file, err := ioutil.ReadFile(fileName) //Currently just a json file, should be stored more securely
 
 	if err != nil {
 		fmt.Printf("File error: v\n", err)
 	}
 
-	json.Unmarshal(file, &c)
+	json.Unmarshal(file, &cred)
 
-	conf := &oauth2.Config(
-		ClientID: cred.Cid,
+	conf = &oauth2.Config{
+		ClientID:     cred.Cid,
 		ClientSecret: cred.Csecret,
-		RedirectURL: "http://127.0.0.1:8080/oauth2callback",
+		RedirectURL:  "http://127.0.0.1:8080/oauth2callback",
 		Scopes: []string{
 			"https://www.googleapis.com/auth/userinfo.email",
-		  },
+		},
 		Endpoint: google.Endpoint,
-	)
+	}
 }
