@@ -60,7 +60,7 @@ func doSolverSocket(solver *Solver) {
 					Bytes("payload", messageBytes).
 					Msg("Bad message payload.")
 			} else {
-				switch _ := unmarshalledMessage.Message.(type) {
+				switch unmarshalledMessage.Message.(type) {
 				case LeaveSession:
 					log.Info().Str("solverId", solver.Id.String()).Msg("Solver is leaving.")
 					socketLive = false // break out of loop
