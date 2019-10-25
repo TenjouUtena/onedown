@@ -34,6 +34,14 @@ func (puzz *Puzzle) GetSolutions(rowIndices [2]int, colIndices [2]int) [][]strin
 	return result
 }
 
+func (puzz *Puzzle) GetRowCount() int {
+	return len(puzz.squares)
+}
+
+func (puzz *Puzzle) GetColCount() int {
+	return len(puzz.squares[0])
+}
+
 type puzzleMeta struct {
 	Title     string
 	Author    string

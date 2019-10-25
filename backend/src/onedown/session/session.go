@@ -4,6 +4,7 @@ import (
 	"github.com/TenjouUtena/onedown/backend/src/onedown/puzzle"
 	"github.com/google/uuid"
 	"github.com/rs/zerolog/log"
+	"github.com/wangjia184/sortedset"
 )
 
 var nobody = uuid.MustParse("00000000-0000-0000-0000-000000000000")
@@ -103,10 +104,19 @@ func ifValidIndices(rowIndices [2]int, colIndices [2]int, thenDo func()) {
 
 func createSession(puzz *puzzle.Puzzle) *session {
 	channel := make(chan SessionMessage)
+	blankState := make([][]*sortedset.SortedSet, puzz.GetRowCount())
+	for row := range blankState {
+		blankState[row] = make([]*sortedset.SortedSet, puzz.GetColCount())
+		for col := range blankState[row] {
+			blankState[row][col] = sortedset.New()
+		}
+	}
 	sessionObj := session{
 		puzz:        puzz,
 		channel:     channel,
-		state:       PuzzleState{},
+		state:       PuzzleState{
+			filledSquares: blankState,
+		},
 		solvers:     make(map[uuid.UUID]*Solver),
 		initialized: true,
 	}
