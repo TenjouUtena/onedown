@@ -5,7 +5,8 @@ import React from 'react';
 export class SessionNav extends React.Component {
   state = {
     sessions: [],
-    uploadFile: {}
+    uploadFile: {},
+    session: ""
   };
 
   constructor(props) {
@@ -51,10 +52,13 @@ export class SessionNav extends React.Component {
   }
 
   connectSession(event) {
-      this.props.buildws("ws://localhost:8080/session/" + this.selector.current.value)
+      
 
       document.getElementsByClassName('SessionNav')[0].style.height=0;
       document.getElementsByClassName('SessionNav')[0].style.borderStyle='none';
+
+      this.setState({session: this.selector.current.value}, () => this.props.buildws("ws://localhost:8080/session/" + this.selector.current.value))
+
   }
 
   componentDidMount() {

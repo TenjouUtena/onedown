@@ -3,8 +3,9 @@ import './App.scss';
 import { SessionNav } from './SessionNav';
 import { AcrossClueList, DownClueList } from './Clue';
 import { w3cwebsocket as W3CWebSocket } from "websocket";
+import { Square } from './Square';
 
-var sqsize=40;
+export var sqsize=40;
 var curborder=2;
 
 export var dirs = {
@@ -32,34 +33,6 @@ class Selector extends React.Component {
 }
 
 
-class Square extends React.Component {
-  render() {
-    const value = this.props.value;
-    var style = {
-       top: value.row*sqsize,
-       left: value.col*sqsize
-    };
-    let clue;
-    if (value.clueNum) {
-      clue = <span className="SquareClue" >{value.clueNum}</span>
-    }
-
-    let black;
-    if (value.isBlack) {
-      black = "black"
-    } else {
-      black = "white"
-    }
-    return (
-      <div className="Square" style={style} id={black} onClick={(e) => this.props.onClick(e, this.props.value.row, this.props.value.col)}
-                              onKeyPress={(e) => this.props.onKeyPress(e)}
-                              selstyle={this.props.value.selected ? 'selected' : 'notSelected'} tabIndex="0">
-        {clue}
-      </div>
-    );
-  }
-}
-
 class Game extends React.Component {
   
   state = {
@@ -73,18 +46,31 @@ class Game extends React.Component {
     acrossSelected: 1,
     downSelected: 1,
     width: 15,
-    height: 15
+    height: 15,
+    session: ""
   }
 
   constructor() {
     super();
 
     this.client = null;
+    this.sessnav = React.createRef();
 
     this.handleSquareClick = this.handleSquareClick.bind(this)
     this.handleClueClick = this.handleClueClick.bind(this)
     this.calcClueNums = this.calcClueNums.bind(this)
 
+  }
+
+  putGuess(row, col, guess) {
+    let sqs = this.state.squares
+    sqs.forEach((s) => {
+      if(s.row === row && s.col === col) {
+        s.answer = {guess: guess}
+      }
+    })
+
+    this.setState({squares: sqs})
   }
 
   onClientMessage(message) {
@@ -106,6 +92,7 @@ class Game extends React.Component {
     this.client = new W3CWebSocket(url)
     this.client.onmessage = (mess) => this.onClientMessage(mess);
     this.client.onopen = () => console.log("Connected to Session.")
+    this.setState({session:this.sessnav.current.state.session})
 
 
   }
@@ -115,17 +102,20 @@ class Game extends React.Component {
   }
 
   handleKeys (event) {
-    console.log(event.key)
+    //console.log(event.key)
+    let guess = event.key
     if(this.client) {
       var mess = {name:"WriteSquare",
-                  session:"00000000-0000-0000-0000-000000000000",
+                  session: this.state.session,
                   payload: JSON.stringify({
                     row: this.state.selectorPos.row,
                     col: this.state.selectorPos.col,
-                    answer: event.key
+                    answer: guess
                   })}
       this.client.send(JSON.stringify(mess))
     }
+
+    this.putGuess(this.state.selectorPos.row, this.state.selectorPos.col, guess)
   }
   
   calcClueNums(sqs) {
@@ -252,7 +242,7 @@ class Game extends React.Component {
       return (
       <div className="Game">
 
-        <SessionNav buildws={(e) => this.buildws(e)} />
+        <SessionNav buildws={(e) => this.buildws(e)} session={this.state.session} ref={this.sessnav}/>
 
         <div>
           <span className="GameMessage">{this.state.gameMessage}</span>

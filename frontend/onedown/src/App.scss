@@ -1,12 +1,22 @@
 $square-size: 40px;
 $selector-padding: 2px;
 
+.answer {
+  font-size: 36px;
+  position: relative;
+  top: -5px;
+  left: 6px;
+
+
+}
+
 .Square {
   position: absolute;
   border:1px;
   border-style: solid;
   width: $square-size - 1px;
   height: $square-size - 1px;
+  
   
 }
 
