@@ -9,7 +9,12 @@ func (puzzState PuzzleState) MarshalJSON() ([]byte, error) {
 	squares := make([]jsonPuzzleStateSquare, 0)
 	for rowIndex, row := range puzzState.filledSquares {
 		for colIndex, col := range row {
-			switch value := col.PeekMax().Value.(type) {
+			maybeString := (*col).PeekMax()
+			if maybeString == nil {
+				// no value has been entered
+				continue
+			}
+			switch value := (*col).PeekMax().Value.(type) {
 			case string:
 				if value == "" {
 					solver, err := uuid.Parse(col.PeekMax().Key())

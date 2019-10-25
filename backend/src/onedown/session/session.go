@@ -12,7 +12,7 @@ var nobody = uuid.MustParse("00000000-0000-0000-0000-000000000000")
 type session struct {
 	puzz        *puzzle.Puzzle
 	channel     chan SessionMessage
-	state       PuzzleState
+	state       *PuzzleState
 	solvers     map[uuid.UUID]*Solver
 	initialized bool
 }
@@ -28,7 +28,7 @@ func doSession(sesh *session) {
 			typedMsg.Solver.Tell(CurrentPuzzleState{
 				Solvers:     sesh.getSolverIds(),
 				Puzzle:      sesh.puzz,
-				PuzzleState: &sesh.state,
+				PuzzleState: sesh.state,
 			})
 		case LeaveSession:
 			oldSolver := sesh.solvers[typedMsg.Solver]
@@ -114,7 +114,7 @@ func createSession(puzz *puzzle.Puzzle) *session {
 	sessionObj := session{
 		puzz:        puzz,
 		channel:     channel,
-		state:       PuzzleState{
+		state:       &PuzzleState{
 			filledSquares: blankState,
 		},
 		solvers:     make(map[uuid.UUID]*Solver),
