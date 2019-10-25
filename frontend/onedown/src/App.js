@@ -103,7 +103,7 @@ class Game extends React.Component {
 
   handleKeys (event) {
     //console.log(event.key)
-    let guess = event.key
+    let guess = event.key.toUpperCase()[0]
     if(this.client) {
       var mess = {name:"WriteSquare",
                   session: this.state.session,
