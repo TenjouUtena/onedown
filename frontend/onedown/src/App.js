@@ -62,6 +62,36 @@ class Game extends React.Component {
 
   }
 
+  onArrow(event) {
+    var key = event.key
+    const cursor = this.state.selectorPos;
+    if(key === "ArrowUp") {
+      cursor.row--;
+      if(cursor.row < 0) 
+         cursor.row = 0;
+    }
+    if(key === "ArrowDown") {
+      cursor.row++;
+      if(cursor.row >= this.state.height) {
+        cursor.row = this.state.height-1;
+      }
+    }
+    if(key === "ArrowLeft") {
+      cursor.col--;
+      if(cursor.col < 0)
+        cursor.col = 0;
+    }
+    if(key === "ArrowRight") {
+      cursor.col++;
+      if(cursor.col >= this.state.width)
+         cursor.col = this.state.width -1;
+    }
+
+    if(!this.findSquare(cursor.row, cursor.col).isBlack) {
+      this.setState({selectorPos: cursor})
+    }
+  }
+
   putGuess(row, col, guess) {
     let sqs = this.state.squares
     sqs.forEach((s) => {
@@ -85,6 +115,10 @@ class Game extends React.Component {
                   downClues: puz.downClues,
                   squares: pw
       })
+    }
+
+    if(m.name == "SquareUpdated")  {
+      this.putGuess(p.row, p.col, p.newValue)
     }
   }
 
@@ -216,6 +250,8 @@ class Game extends React.Component {
 
   componentDidMount() {
     this.selectSquare(0,0);
+
+    window.addEventListener("keydown",(e) => this.onArrow(e))
   }
 
   render () {

@@ -74,7 +74,7 @@ export class SessionNav extends React.Component {
       <p />
       <select ref={this.selector}>
           {this.state.sessions.map((s) => {
-              return <option value={s}>{s}</option>
+              return <option value={s} key={s}>{s}</option>
           })}
       </select>
       <input type='button' value="Join Session" onClick={e => this.connectSession(e)} />
