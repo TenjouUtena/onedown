@@ -4,6 +4,7 @@ import { SessionNav } from './SessionNav';
 import { AcrossClueList, DownClueList } from './Clue';
 import { w3cwebsocket as W3CWebSocket } from "websocket";
 import { Square } from './Square';
+import { doesNotReject } from 'assert';
 
 export var sqsize=40;
 var curborder=2;
@@ -25,7 +26,7 @@ class Selector extends React.Component {
 
     return (
       <div className="Selector" style={style} >
-
+        <div className={"Sel" + this.props.dir} style={style}/>
       </div>
     );
   }
@@ -43,6 +44,7 @@ class Game extends React.Component {
     puzzleInput: "Apr0914",
     selectorPos: {"row":0, "col":0},
     selectingAcross: true,
+    selectedDir: dirs.ACROSS,
     acrossSelected: 1,
     downSelected: 1,
     width: 15,
@@ -65,35 +67,47 @@ class Game extends React.Component {
   onArrow(event) {
     var key = event.key
     const cursor = Object.assign({},this.state.selectorPos);
+    var newdir;
     if(key === "ArrowUp") {
       cursor.row--;
+      newdir = dirs.DOWN
+      this.setState({selectedDir: newdir})
       if(cursor.row < 0) 
          cursor.row = 0;
     }
     if(key === "ArrowDown") {
       cursor.row++;
+      newdir = dirs.DOWN
+      this.setState({selectedDir: newdir})
       if(cursor.row >= this.state.height) {
         cursor.row = this.state.height-1;
       }
     }
     if(key === "ArrowLeft") {
       cursor.col--;
+      newdir = dirs.ACROSS
+      this.setState({selectedDir: newdir})
       if(cursor.col < 0)
         cursor.col = 0;
     }
     if(key === "ArrowRight") {
       cursor.col++;
+      newdir = dirs.ACROSS
+      this.setState({selectedDir: newdir})
       if(cursor.col >= this.state.width)
          cursor.col = this.state.width -1;
     }
 
     if(!this.findSquare(cursor.row, cursor.col).isBlack) {
-      //this.setState({selectorPos: cursor})
       this.selectSquare(cursor.row, cursor.col)
     }
+
+
   }
 
-  putGuess(row, col, guess) {
+  putGuess(row, col, guess, then) {
+    then = then || (() => {})
+
     let sqs = this.state.squares
     sqs.forEach((s) => {
       if(s.row === row && s.col === col) {
@@ -101,7 +115,7 @@ class Game extends React.Component {
       }
     })
 
-    this.setState({squares: sqs})
+    this.setState({squares: sqs}, then)
   }
 
   onClientMessage(message) {
@@ -144,7 +158,14 @@ class Game extends React.Component {
 
   handleKeys (event) {
     //console.log(event.key)
+    var validguess = /[a-zA-Z0-9]/
+    
+    if(!validguess.test(event.key) || event.key.length>1) {
+      return
+    }
+    
     let guess = event.key.toUpperCase()[0]
+
     if(this.client) {
       var mess = {name:"WriteSquare",
                   session: this.state.session,
@@ -156,7 +177,23 @@ class Game extends React.Component {
       this.client.send(JSON.stringify(mess))
     }
 
-    this.putGuess(this.state.selectorPos.row, this.state.selectorPos.col, guess)
+    this.putGuess(this.state.selectorPos.row, this.state.selectorPos.col, guess, () => {
+      var row = this.state.selectorPos.row;
+      var col =this.state.selectorPos.col;
+      if(this.state.selectedDir === dirs.ACROSS) {
+        col  =col +1;
+      }
+      if(this.state.selectedDir === dirs.DOWN) {
+        row  =row +1;
+      }
+      var s = this.findSquare(row,col)
+      if(!s.isBlack) {
+        this.selectSquare(row,col)
+      }
+  
+    })
+    
+    
   }
   
   calcClueNums(sqs) {
@@ -232,13 +269,20 @@ class Game extends React.Component {
 
   handleSquareClick (event, row, col) {
 
-    let s = this.findSquare(row,col);
+    if(row === this.state.selectorPos.row && col === this.state.selectorPos.col) {
+      if(this.state.selectedDir == dirs.ACROSS) {
+        this.setState({selectedDir: dirs.DOWN})
+      } else {
+        this.setState({selectedDir: dirs.ACROSS})
+      }
+    } else {
+      let s = this.findSquare(row,col);
 
-    if (!s.isBlack) {
+      if (!s.isBlack) {
 
-      this.selectSquare(row,col);
+        this.selectSquare(row,col);
+      }
     }
-   
   }
 
   resetSelection (sqs) {
@@ -297,7 +341,7 @@ class Game extends React.Component {
           );
        }
        )}
-        <Selector value={this.state.selectorPos}></Selector>
+        <Selector value={this.state.selectorPos} dir={this.state.selectedDir}></Selector>
         </div>
 
         <AcrossClueList className="AcrossClueList" value={aval} style={astyle} onClick={this.handleClueClick} />

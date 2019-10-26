@@ -56,6 +56,23 @@ $selector-padding: 2px;
   border-style: solid;
   width: $square-size - (3px + ($selector-padding*2));
   height: $square-size - (3px + ($selector-padding*2));
+  pointer-events: none;
+}
+
+.Selacross {
+  border-right: aquamarine;
+  pointer-events: none;
+  border-right-style: solid;
+  width: $square-size - (3px + ($selector-padding*2));
+  height: $square-size - (3px + ($selector-padding*2));
+}
+
+.Seldown {
+  border-bottom: aquamarine;
+  pointer-events: none;
+  border-bottom-style: solid;
+  width: $square-size - (3px + ($selector-padding*2));
+  height: $square-size - (3px + ($selector-padding*2));
 }
 
 @mixin clue-list {
