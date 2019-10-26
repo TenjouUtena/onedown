@@ -4,7 +4,6 @@ import { SessionNav } from './SessionNav';
 import { AcrossClueList, DownClueList } from './Clue';
 import { w3cwebsocket as W3CWebSocket } from "websocket";
 import { Square } from './Square';
-import { doesNotReject } from 'assert';
 
 export var sqsize=40;
 var curborder=2;

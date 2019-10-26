@@ -22,7 +22,8 @@ export class SessionNav extends React.Component {
   handleCreateSession(event) {
     var data = new FormData()
     data.append('puzFile',this.state.uploadFile)
-    fetch("http://localhost:8080/session" , {method:'POST', body: data})
+    let path = window.location.protocol + '//' + window.location.hostname + ':8080' + '/session'
+    fetch(path , {method:'POST', body: data})
     .then(res => {
         if(!res.ok) throw(res);
         return(res);
@@ -37,7 +38,8 @@ export class SessionNav extends React.Component {
   }
 
   loadSessions() {
-      fetch("http://localhost:8080/session")
+    let path = window.location.protocol + '//' + window.location.hostname + ':8080' + '/session'
+      fetch(path)
       .then(res => {
         if(!res.ok) throw(res);
         return(res);
