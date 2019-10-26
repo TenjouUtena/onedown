@@ -69,7 +69,13 @@ export class SessionNav extends React.Component {
       document.getElementsByClassName('SessionNav')[0].style.height=0;
       document.getElementsByClassName('SessionNav')[0].style.borderStyle='none';
 
-      this.setState({session: this.selector.current.value}, () => this.props.buildws("ws://localhost:8080/session/" + this.selector.current.value))
+      // This is a stupid hack
+      var port = window.location.port
+      if(window.location.hostname === 'localhost') {
+        port = "8080"
+      }
+      let path = 'ws:' + '//' + window.location.hostname + ':' + port + '/session/'
+      this.setState({session: this.selector.current.value}, () => this.props.buildws(path + this.selector.current.value))
 
   }
 
