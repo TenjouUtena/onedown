@@ -1,3 +1,10 @@
 #!/bin/bash
+git pull
+cd /home/ec2-user/go/src/github.com/TenjouUtena/onedown/frontend/onedown/
+npm run-script build
+cp -r /home/ec2-user/go/src/github.com/TenjouUtena/onedown/frontend/onedown/build/* /home/ec2-user/go/src/github.com/TenjouUtena/onedown/server/nginx/static
+
+cd /home/ec2-user/go/src/github.com/TenjouUtena/onedown/server/
+
 docker build -t od-nginx-image nginx
 docker build -t od-onedown-image onedown
