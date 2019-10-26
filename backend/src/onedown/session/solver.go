@@ -45,8 +45,17 @@ func doSolverSocket(solver *Solver) {
 	for socketLive {
 		messageType, messageBytes, err := solver.socket.ReadMessage()
 		if err != nil {
-			// TODO At the moment this will error when a user leaves a session. need to figure that one out
-			log.Error().Err(err).Str("solverId", solver.Id.String()).Msg("Error when reading message from socket.")
+			switch errType := err.(type) {
+			case *websocket.CloseError:
+				// Per https://github.com/Luka967/websocket-close-codes these are expected closes.
+				if errType.Code == 1000 || errType.Code == 1001 {
+					log.Info().Str("solverId", solver.Id.String()).Msg("Solver socket closed, doing cleanup.")
+				} else {
+					log.Error().Err(err).Str("solverId", solver.Id.String()).Msg("Unexpected socket close.")
+				}
+			default:
+				log.Error().Err(err).Str("solverId", solver.Id.String()).Msg("Error when reading message from socket.")
+			}
 			break
 		} else if messageType != websocket.TextMessage {
 			log.Error().Str("solverId", solver.Id.String()).Msg("Message sent as binary, not currently supported.")
