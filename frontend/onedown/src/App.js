@@ -64,7 +64,7 @@ class Game extends React.Component {
 
   onArrow(event) {
     var key = event.key
-    const cursor = this.state.selectorPos;
+    const cursor = Object.assign({},this.state.selectorPos);
     if(key === "ArrowUp") {
       cursor.row--;
       if(cursor.row < 0) 
@@ -88,7 +88,8 @@ class Game extends React.Component {
     }
 
     if(!this.findSquare(cursor.row, cursor.col).isBlack) {
-      this.setState({selectorPos: cursor})
+      //this.setState({selectorPos: cursor})
+      this.selectSquare(cursor.row, cursor.col)
     }
   }
 
@@ -109,11 +110,17 @@ class Game extends React.Component {
     if(m.name === "CurrentPuzzleState") {
       const puz = p.puzzle;
       const pw = this.calcClueNums(puz.squares)
+
       this.setState({width: puz.width,
                   height: puz.height,
                   acrossClues: puz.acrossClues,
                   downClues: puz.downClues,
                   squares: pw
+      }, () => {
+        const ps = p.puzzleState;
+        ps.squares.forEach((s) => {
+          this.putGuess(s.row, s.col, s.value)
+        })
       })
     }
 
