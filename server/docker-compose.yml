@@ -7,6 +7,11 @@ services:
                 ports: 
                    - 80:80
                 restart: always
+                depends_on:
+                   - "onedown"
+        onedown: 
+                image: od-onedown-image
+                restart: always
         cassy:
                 image: cassandra:latest
                 volumes:

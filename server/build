@@ -1,0 +1,3 @@
+#!/bin/bash
+docker build -t od-nginx-image nginx
+docker build -t od-onedown-image onedown
