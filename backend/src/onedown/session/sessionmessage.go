@@ -22,9 +22,7 @@ func (msg JoinSession) unmarshalClientPayload(payload []byte) (SessionMessage, e
 	return unmarshaledMessage, err
 }
 
-type LeaveSession struct {
-	Solver uuid.UUID
-}
+type LeaveSession struct { }
 
 func (msg LeaveSession) unmarshalClientPayload(payload []byte) (SessionMessage, error) {
 	unmarshaledMessage := LeaveSession{}
@@ -33,7 +31,6 @@ func (msg LeaveSession) unmarshalClientPayload(payload []byte) (SessionMessage, 
 }
 
 type WriteSquare struct {
-	Solver uuid.UUID
 	Row    int
 	Col    int
 	Answer string

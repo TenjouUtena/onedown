@@ -11,7 +11,7 @@ var nobody = uuid.MustParse("00000000-0000-0000-0000-000000000000")
 
 type session struct {
 	puzz        *puzzle.Puzzle
-	channel     chan SessionMessage
+	channel     chan MessageForSession
 	state       *PuzzleState
 	solvers     map[uuid.UUID]*Solver
 	initialized bool
@@ -19,7 +19,7 @@ type session struct {
 
 func doSession(sesh *session) {
 	for msg := range sesh.channel {
-		switch typedMsg := msg.(type) {
+		switch typedMsg := msg.Message.(type) {
 		case JoinSession:
 			sesh.broadcastSolverMessage(SolverJoined{
 				Solver: typedMsg.Solver.Id,
@@ -31,21 +31,21 @@ func doSession(sesh *session) {
 				PuzzleState: sesh.state,
 			})
 		case LeaveSession:
-			oldSolver := sesh.solvers[typedMsg.Solver]
+			oldSolver := sesh.solvers[msg.solver]
 			if oldSolver != nil {
 				close(oldSolver.responseChannel) // unmarshal solver
-				delete(sesh.solvers, typedMsg.Solver)
+				delete(sesh.solvers, msg.solver)
 				sesh.broadcastSolverMessage(SolverLeft{
-					Solver: typedMsg.Solver,
+					Solver: msg.solver,
 				})
 			}
 		case WriteSquare:
-			sesh.state.putAnswer(typedMsg.Solver, typedMsg.Row, typedMsg.Col, typedMsg.Answer)
+			sesh.state.putAnswer(msg.solver, typedMsg.Row, typedMsg.Col, typedMsg.Answer)
 			sesh.broadcastSolverMessage(SquareUpdated{
 				Row:      typedMsg.Row,
 				Col:      typedMsg.Col,
 				NewValue: typedMsg.Answer,
-				FilledBy: typedMsg.Solver,
+				FilledBy: msg.solver,
 			})
 		case CheckSquares:
 			ifValidIndices(typedMsg.RowIndices, typedMsg.ColIndices, func() {
@@ -103,7 +103,7 @@ func ifValidIndices(rowIndices [2]int, colIndices [2]int, thenDo func()) {
 }
 
 func createSession(puzz *puzzle.Puzzle) *session {
-	channel := make(chan SessionMessage)
+	channel := make(chan MessageForSession)
 	blankState := make([][]*sortedset.SortedSet, puzz.GetRowCount())
 	for row := range blankState {
 		blankState[row] = make([]*sortedset.SortedSet, puzz.GetColCount())

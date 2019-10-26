@@ -52,7 +52,7 @@ func doSolverSocket(solver *Solver) {
 			log.Error().Str("solverId", solver.Id.String()).Msg("Message sent as binary, not currently supported.")
 		} else {
 			// Write it to daemon to be delegated to the appropriate session
-			unmarshalledMessage, err := unmarshallSocketMessage(messageBytes)
+			unmarshalledMessage, err := solver.unmarshallSocketMessage(messageBytes)
 			if err != nil {
 				log.Error().
 					Err(err).
@@ -83,7 +83,7 @@ func doSolverSocket(solver *Solver) {
 	"payload":"..."
 }
 */
-func unmarshallSocketMessage(messagePayload []byte) (MessageForSession, error) {
+func (solver *Solver) unmarshallSocketMessage(messagePayload []byte) (MessageForSession, error) {
 	stringMapPayload := make(map[string]string)
 	err := json.Unmarshal(messagePayload, &stringMapPayload)
 	if err != nil {
@@ -100,10 +100,7 @@ func unmarshallSocketMessage(messagePayload []byte) (MessageForSession, error) {
 	if err != nil {
 		return MessageForSession{}, err
 	}
-	return MessageForSession{
-		Session: session,
-		Message: msg,
-	}, nil
+	return NewMessageForSession(solver.Id, session, msg), nil
 }
 
 func InitSolver(socket *websocket.Conn, session uuid.UUID) *Solver {

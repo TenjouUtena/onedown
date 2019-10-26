@@ -28,14 +28,18 @@ func InitDaemon(listen chan SessionDaemonMessage) {
 		case MessageForSession:
 			sesh := sessions[typedMsg.Session]
 			if sesh != nil && sesh.initialized {
-				sesh.channel <- typedMsg.Message
+				sesh.channel <- typedMsg
 			} else {
 				log.Error().Str("session", typedMsg.Session.String()).Msg("Message sent to session not on this daemon.")
 			}
 		case UserDisconnected:
-			for _, session := range sessions {
+			for sessionId, session := range sessions {
 				if _, hasSolver := session.solvers[typedMsg.Solver]; hasSolver {
-					session.channel <- LeaveSession{Solver: typedMsg.Solver}
+					session.channel <- MessageForSession{
+						solver:               typedMsg.Solver,
+						Session:              sessionId,
+						Message:              LeaveSession{ },
+					}
 				}
 			}
 		case KillDaemon:
@@ -61,8 +65,19 @@ type SpawnSession struct {
 
 type MessageForSession struct {
 	SessionDaemonMessage
+	solver  uuid.UUID
 	Session uuid.UUID
 	Message SessionMessage
+}
+
+func NewMessageForSession(solver uuid.UUID,
+	session uuid.UUID,
+	message SessionMessage) MessageForSession {
+	return MessageForSession{
+		solver:  solver,
+		Session: session,
+		Message: message,
+	}
 }
 
 type UserDisconnected struct {

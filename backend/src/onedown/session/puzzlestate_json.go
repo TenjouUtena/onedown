@@ -14,10 +14,10 @@ func (puzzState PuzzleState) MarshalJSON() ([]byte, error) {
 				// no value has been entered
 				continue
 			}
-			switch value := (*col).PeekMax().Value.(type) {
+			switch value := maybeString.Value.(type) {
 			case string:
-				if value == "" {
-					solver, err := uuid.Parse(col.PeekMax().Key())
+				if value != "" {
+					solver, err := uuid.Parse(maybeString.Key())
 					if err == nil {
 						squares = append(squares, jsonPuzzleStateSquare{
 							Row:      rowIndex,
