@@ -2,7 +2,11 @@
 git pull
 cd /home/ec2-user/go/src/github.com/TenjouUtena/onedown/frontend/onedown/
 npm run-script build
-cp -r /home/ec2-user/go/src/github.com/TenjouUtena/onedown/frontend/onedown/build/* /home/ec2-user/go/src/github.com/TenjouUtena/onedown/server/nginx/static
+
+rm -Rf /home/ec2-user/go/src/github.com/TenjouUtena/onedown/server/nginx/static
+mkdir /home/ec2-user/go/src/github.com/TenjouUtena/onedown/server/nginx/static
+
+cp -r /home/ec2-user/go/src/github.com/TenjouUtena/onedown/frontend/onedown/build/* /home/ec2-user/go/src/github.com/TenjouUtena/onedown/server/nginx/static/
 
 cd /home/ec2-user/go/src/github.com/TenjouUtena/onedown/server/
 
