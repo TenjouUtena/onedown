@@ -59,6 +59,11 @@ func doSolverSocket(solver *Solver) {
 			break
 		} else if messageType != websocket.TextMessage {
 			log.Error().Str("solverId", solver.Id.String()).Msg("Message sent as binary, not currently supported.")
+		} else if string(messageBytes) == "PING" {
+			err := solver.socket.WriteMessage(websocket.TextMessage, []byte("PONG"))
+			if err != nil {
+				log.Error().Err(err).Msg("Error on pong!")
+			}
 		} else {
 			// Write it to daemon to be delegated to the appropriate session
 			unmarshalledMessage, err := solver.unmarshallSocketMessage(messageBytes)
