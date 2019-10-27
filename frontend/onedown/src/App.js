@@ -156,15 +156,15 @@ class Game extends React.Component {
   }
 
   handleKeys (event) {
-    //console.log(event.key)
-    var validguess = /[a-zA-Z0-9]/
     
+    // Make sure we're evaluating a valid guess
+    var validguess = /[a-zA-Z0-9 ]/    
     if(!validguess.test(event.key) || event.key.length>1) {
       return
     }
-    
     let guess = event.key.toUpperCase()[0]
 
+    // Write to websocket
     if(this.client) {
       var mess = {name:"WriteSquare",
                   session: this.state.session,
@@ -176,6 +176,7 @@ class Game extends React.Component {
       this.client.send(JSON.stringify(mess))
     }
 
+    // Put Guess on the board
     this.putGuess(this.state.selectorPos.row, this.state.selectorPos.col, guess, () => {
       var row = this.state.selectorPos.row;
       var col =this.state.selectorPos.col;
@@ -185,11 +186,12 @@ class Game extends React.Component {
       if(this.state.selectedDir === dirs.DOWN) {
         row  =row +1;
       }
-      var s = this.findSquare(row,col)
-      if(!s.isBlack) {
-        this.selectSquare(row,col)
+      if(row < this.state.height && col < this.state.width) {
+        var s = this.findSquare(row,col)
+        if(!s.isBlack) {
+          this.selectSquare(row,col)
+        }
       }
-  
     })
     
     
@@ -336,7 +338,8 @@ class Game extends React.Component {
        <div className="Grid">
        {squares.map( (t, i) => {
           return (
-          <Square value={this.state.squares[i]} key={(t.row*100)+t.col} onClick={this.handleSquareClick} onKeyPress={(e) => (this.handleKeys(e))}/> 
+          <Square value={this.state.squares[i]} key={(t.row*100)+t.col} onClick={this.handleSquareClick} 
+                         onKeyPress={(e) => (this.handleKeys(e))}/> 
           );
        }
        )}
