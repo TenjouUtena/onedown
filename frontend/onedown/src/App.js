@@ -118,6 +118,9 @@ class Game extends React.Component {
   }
 
   onClientMessage(message) {
+    if(message.data === "PONG") {
+      return;
+    }
     const m = JSON.parse(message.data)
     const p = m.payload
     if(m.name === "CurrentPuzzleState") {
@@ -142,11 +145,24 @@ class Game extends React.Component {
     }
   }
 
+  clientTimer() {
+    if(this.client) {
+      this.client.send("PING")
+    } else {
+      // We're disconnected here
+      clearInterval(this.state.clientTimer)
+    }
+  }
+
   buildws (url) {
     this.client = new W3CWebSocket(url)
     this.client.onmessage = (mess) => this.onClientMessage(mess);
     this.client.onopen = () => console.log("Connected to Session.")
     this.setState({session:this.sessnav.current.state.session})
+
+    //Setup Timeout Timer
+    var inter = setInterval(() => this.clientTimer(),30*1000)
+    this.setState({clientTimer: inter})
 
 
   }
