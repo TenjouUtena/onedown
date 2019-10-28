@@ -22,8 +22,7 @@ func InitDaemon(listen chan SessionDaemonMessage) {
 			}
 			typedMsg.ResponseChannel <- sessionIds
 		case SpawnSession:
-			newSession := createSession(typedMsg.Puzzle)
-			sessionId := uuid.New()
+			newSession, sessionId := createSession(typedMsg.Puzzle)
 			sessions[sessionId] = newSession
 		case MessageForSession:
 			sesh := sessions[typedMsg.Session]

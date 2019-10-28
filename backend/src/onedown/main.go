@@ -1,17 +1,13 @@
 package main
 
 import (
-	"encoding/json"
-	"flag"
-	"fmt"
+	"github.com/TenjouUtena/onedown/backend/src/onedown/configuration"
 	"os"
-	"path"
 	"strconv"
 	"strings"
 
 	"github.com/TenjouUtena/onedown/backend/src/onedown/cassandra"
 	"github.com/TenjouUtena/onedown/backend/src/onedown/credentials"
-	"github.com/TenjouUtena/onedown/backend/src/onedown/puzzle"
 	"github.com/TenjouUtena/onedown/backend/src/onedown/session"
 	"github.com/TenjouUtena/onedown/backend/src/onedown/users"
 	"github.com/gin-contrib/cors"
@@ -23,15 +19,15 @@ import (
 	"github.com/rs/zerolog/log"
 )
 
-func initLogger(cfg *Configuration) {
+func initLogger() {
 	// initiate logger
-	if cfg.Logfile != "" {
-		logfile, err := os.Open(cfg.Logfile)
+	if configuration.Get().Logfile != "" {
+		logfile, err := os.Open(configuration.Get().Logfile)
 		if err == nil {
 			log.Logger = zerolog.New(logfile).With().Timestamp().Logger()
 		}
 	}
-	switch strings.ToUpper(cfg.LogLevel) {
+	switch strings.ToUpper(configuration.Get().LogLevel) {
 	case "DEBUG":
 		zerolog.SetGlobalLevel(zerolog.DebugLevel)
 	case "WARN":
@@ -45,34 +41,14 @@ func initLogger(cfg *Configuration) {
 	default:
 		zerolog.SetGlobalLevel(zerolog.InfoLevel)
 	}
-
 }
 
 func main() {
 
-	var cfg Configuration
-	cfg.GOPATH = os.Getenv("GOPATH")
-
-	configPath := flag.String("config", path.Join(cfg.GOPATH, "configuration"), "Path to configuration files")
-	flag.Parse()
-	file, err := os.Open(path.Join(*configPath, "configuration.json"))
-	if err != nil {
-		fmt.Fprintf(os.Stderr, "error: %v\n", err)
-		os.Exit(1)
-	}
-	decoder := json.NewDecoder(file)
-	err = decoder.Decode(&cfg)
-
-	if err != nil {
-		fmt.Fprintf(os.Stderr, "error: %v\n", err)
-		os.Exit(1)
-	}
-
-	initLogger(&cfg)
-	log.Info().Msg("Initializing OneDown server...")
-
 	//Load Google Oauth Credentials
-	credentials.LoadCredentials(cfg.CredentialFile)
+	credentials.LoadCredentials(configuration.Get().CredentialFile)
+	initLogger()
+	log.Info().Msg("Initializing OneDown server...")
 
 	// set up session daemon
 	go session.InitDaemon(session.SessionDaemon)
@@ -98,25 +74,10 @@ func main() {
 		c.String(200, "PONG!")
 	})
 
-	router.GET("/puzzle/:puzid/get", func(c *gin.Context) {
-		finalPath := path.Join(cfg.PuzzleDirectory, c.Param("puzid")+".puz")
-		puzFile, err := os.Open(finalPath)
-
-		if err != nil {
-			c.JSON(500, gin.H{"Error": err})
-		} else {
-			puzz, err := puzzle.ReadPuzfile(puzFile)
-			if err != nil {
-				c.JSON(500, gin.H{"Error": err})
-			} else {
-				c.JSON(200, puzz.ToPuzzle())
-			}
-		}
-	})
 	users.ConfigureHandlers(router)
 	credentials.ConfigureHandlers(router)
 
-	router.Run(":" + strconv.Itoa(cfg.Port))
+	err := router.Run(":" + strconv.Itoa(configuration.Get().Port))
 
 	if err != nil {
 		log.Fatal().Err(err).Msg("Failed to initialize OneDown server!")

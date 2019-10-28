@@ -40,5 +40,11 @@ func init() {
 		return
 	}
 
+	err = Session.Query("CREATE TABLE IF NOT EXISTS puzzle_sessions (ID uuid, SessionData blob, PRIMARY KEY(ID));").Exec()
+	if err != nil {
+		log.Println(err)
+		return
+	}
+
 	fmt.Println("Cassandra init done")
 }

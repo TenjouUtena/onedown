@@ -1,10 +1,14 @@
 package session
 
 import (
+	"encoding/json"
+	"github.com/TenjouUtena/onedown/backend/src/onedown/cassandra"
+	"github.com/TenjouUtena/onedown/backend/src/onedown/configuration"
 	"github.com/TenjouUtena/onedown/backend/src/onedown/puzzle"
 	"github.com/google/uuid"
 	"github.com/rs/zerolog/log"
 	"github.com/wangjia184/sortedset"
+	"time"
 )
 
 var nobody = uuid.MustParse("00000000-0000-0000-0000-000000000000")
@@ -17,7 +21,12 @@ type session struct {
 	initialized bool
 }
 
-func doSession(sesh *session) {
+func doSession(sessionId uuid.UUID, sesh *session) {
+	// on session end, always write state
+	defer sesh.writeSessionStateToCassandra(sessionId)
+	lastWrite := time.Now() // variable to track time of last write. see end of for loop for usage
+
+	// main session loop
 	for msg := range sesh.channel {
 		switch typedMsg := msg.Message.(type) {
 		case JoinSession:
@@ -85,6 +94,13 @@ func doSession(sesh *session) {
 		default:
 			log.Error().Msg("Invalid session message sent.")
 		}
+		if time.Now().After(lastWrite.Add(configuration.Get().PuzzleSessionWriteDelay)) {
+			lastWrite = time.Now()
+			go func() {
+				time.Sleep(configuration.Get().PuzzleSessionWriteDelay)
+				sesh.writeSessionStateToCassandra(sessionId)
+			}()
+		}
 	}
 }
 
@@ -102,7 +118,7 @@ func ifValidIndices(rowIndices [2]int, colIndices [2]int, thenDo func()) {
 	}
 }
 
-func createSession(puzz *puzzle.Puzzle) *session {
+func createSession(puzz *puzzle.Puzzle) (*session, uuid.UUID) {
 	channel := make(chan MessageForSession)
 	blankState := make([][]*sortedset.SortedSet, puzz.GetRowCount())
 	for row := range blankState {
@@ -120,9 +136,25 @@ func createSession(puzz *puzzle.Puzzle) *session {
 		solvers:     make(map[uuid.UUID]*Solver),
 		initialized: true,
 	}
-	go doSession(&sessionObj)
-	return &sessionObj
+	sessionId := uuid.New()
+	go doSession(sessionId, &sessionObj)
+	return &sessionObj, sessionId
 }
+
+func (session* session) writeSessionStateToCassandra(sessionId uuid.UUID) {
+	log.Debug().Str("sessionId", sessionId.String()).Msg(
+		"Serializing session data.")
+	jsonBlob, err := json.Marshal(*session)
+	if err != nil {
+		log.Error().Err(err).Str("sessionId", sessionId.String()).Msg(
+			"Failed to marshal session data for serialization.")
+	}
+	cassandra.Session.Query("INSERT INTO puzzle_sessions VALUES (?, ?)",
+		sessionId,
+		jsonBlob,
+	)
+}
+
 
 func (sesh *session) broadcastSolverMessage(message SolverMessage) {
 	for _, slv := range sesh.solvers {
