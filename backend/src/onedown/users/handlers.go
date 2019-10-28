@@ -8,8 +8,13 @@ import (
 	"github.com/gocql/gocql"
 )
 
+//ConfigureHandlers Setup users endpoints
+func ConfigureHandlers(router *gin.Engine) {
+	router.POST("/users/new", postHandler)
+}
+
 //Post Users post handler
-func Post(c *gin.Context) {
+func postHandler(c *gin.Context) {
 	var gocqlUUID gocql.UUID
 
 	user, err := JSONToUser(c.Request)
