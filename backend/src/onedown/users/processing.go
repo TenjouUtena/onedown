@@ -37,14 +37,34 @@ func insertNewUser(user User) (User, error) {
 	return user, err
 }
 
-//GetUserByEmail Return single user by UUID. Bool is whether the user was found
+//GetUserByEmail Return single user by Email. Bool is whether the user was found
 func GetUserByEmail(email string) (User, bool) {
 	var user User
 	var found bool = false
 
 	m := map[string]interface{}{}
-	query := "SELECT id, email, username FROM users WHERE email = ? LIMIT 1"
+	query := "SELECT id, email, username FROM users WHERE email=? LIMIT 1 ALLOW FILTERING"
 	iterable := cassandra.Session.Query(query, email).Consistency(gocql.One).Iter()
+	for iterable.MapScan(m) {
+		found = true
+		user = User{
+			ID:       m["id"].(gocql.UUID),
+			Email:    m["email"].(string),
+			Username: m["username"].(string),
+		}
+	}
+
+	return user, found
+}
+
+//GetUserByUUID Return single user by Email. Bool is whether the user was found
+func GetUserByUUID(gocqlUUID gocql.UUID) (User, bool) {
+	var user User
+	var found bool = false
+
+	m := map[string]interface{}{}
+	query := "SELECT id, email, username FROM users WHERE ID = ? LIMIT 1"
+	iterable := cassandra.Session.Query(query, gocqlUUID).Consistency(gocql.One).Iter()
 	for iterable.MapScan(m) {
 		found = true
 		user = User{
