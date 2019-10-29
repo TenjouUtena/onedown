@@ -11,6 +11,14 @@ type User struct {
 	Username string     `json:"username"`
 }
 
+//GoogleUser Google API Info
+type GoogleUser struct {
+	Sub           string `json:"sub"`
+	Picture       string `json:"picture"`
+	Email         string `json:"email"`
+	EmailVerified bool   `json:"email_verified"`
+}
+
 //GetUser Return a single User
 type GetUser struct {
 	User User `json:"user"`

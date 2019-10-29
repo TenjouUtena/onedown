@@ -8,13 +8,31 @@ import (
 	"github.com/gocql/gocql"
 )
 
-//JSONToUser Fills a user struct with json data from an httprequest
-func JSONToUser(request *http.Request) (User, error) {
+//InsertNewUserByGoogleUser Add new user by googleUser struct
+func InsertNewUserByGoogleUser(googleUser GoogleUser) (User, error) {
+	user := User{
+		Email:    googleUser.Email,
+		Username: googleUser.Email,
+	}
+
+	user, err := insertNewUser(user)
+
+	return user, err
+}
+
+func jsonToUser(request *http.Request) (User, error) {
 	var user User
 
 	decoder := json.NewDecoder(request.Body)
 
 	err := decoder.Decode(&user)
+
+	return user, err
+}
+
+func insertNewUser(user User) (User, error) {
+	user.ID = gocql.TimeUUID()
+	err := cassandra.Session.Query("INSERT INTO users (ID, email, username) VALUES(?, ?, ?);", user.ID, user.Email, user.Username).Exec()
 
 	return user, err
 }

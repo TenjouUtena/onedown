@@ -3,9 +3,7 @@ package users
 import (
 	"fmt"
 
-	"github.com/TenjouUtena/onedown/backend/src/onedown/cassandra"
 	"github.com/gin-gonic/gin"
-	"github.com/gocql/gocql"
 )
 
 //ConfigureHandlers Setup users endpoints
@@ -15,9 +13,7 @@ func ConfigureHandlers(router *gin.Engine) {
 
 //Post Users post handler
 func postHandler(c *gin.Context) {
-	var gocqlUUID gocql.UUID
-
-	user, err := JSONToUser(c.Request)
+	user, err := jsonToUser(c.Request)
 
 	if err != nil {
 		c.JSON(500, gin.H{"Error": err})
@@ -26,14 +22,12 @@ func postHandler(c *gin.Context) {
 
 	fmt.Println("Creating new user")
 
-	gocqlUUID = gocql.TimeUUID()
-
-	err = cassandra.Session.Query("INSERT INTO users (ID, email) VALUES(?, ?);", gocqlUUID, user.Email).Exec()
+	user, err = insertNewUser(user)
 
 	if err != nil {
 		c.JSON(500, gin.H{"Error": err})
 		return
 	}
 
-	c.JSON(200, gin.H{"ID": gocqlUUID})
+	c.JSON(200, gin.H{"ID": user.ID})
 }

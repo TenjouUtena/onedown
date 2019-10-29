@@ -55,16 +55,24 @@ func authHandler(c *gin.Context) {
 	defer email.Body.Close()
 	data, _ := ioutil.ReadAll(email.Body)
 	log.Println("Email body: ", string(data))
-	u := GoogleUser{}
+	u := users.GoogleUser{}
 	if err = json.Unmarshal(data, &u); err != nil {
 		c.AbortWithError(http.StatusBadRequest, err)
 		return
 	}
+	
+	var user users.User
+	var found bool
 
-	user, found := users.GetUserByEmail(u.Email)
-	log.Println("User found: ", found)
-	log.Println("User Email:", user.Email)
-	c.Status(http.StatusOK)
+	if user, found = users.GetUserByEmail(u.Email); !found {
+		user, err = users.InsertNewUserByGoogleUser(u)
+		if err != nil {
+			c.AbortWithError(http.StatusBadRequest, err)
+			return
+		}
+	}
+
+	c.JSON(200, gin.H{"ID": user.ID, "Found": found})
 }
 
 func loginHandler(c *gin.Context) {

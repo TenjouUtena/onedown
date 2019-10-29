@@ -18,14 +18,6 @@ type Credentials struct {
 	Csecret string `json:"csecret"`
 }
 
-//GoogleUser Google API Info
-type GoogleUser struct {
-	Sub           string `json:"sub"`
-	Picture       string `json:"picture"`
-	Email         string `json:"email"`
-	EmailVerified bool   `json:"email_verified"`
-}
-
 func LoadCredentials(fileName string) {
 	file, err := ioutil.ReadFile(fileName) //Currently just a json file, should be stored more securely
 
