@@ -3,11 +3,13 @@ package credentials
 import (
 	"crypto/rand"
 	"encoding/base64"
+	"encoding/json"
 	"fmt"
 	"io/ioutil"
 	"log"
 	"net/http"
 
+	"github.com/TenjouUtena/onedown/backend/src/onedown/users"
 	"github.com/gin-contrib/sessions"
 	"github.com/gin-gonic/gin"
 	"golang.org/x/oauth2"
@@ -51,9 +53,17 @@ func authHandler(c *gin.Context) {
 		return
 	}
 	defer email.Body.Close()
-
 	data, _ := ioutil.ReadAll(email.Body)
 	log.Println("Email body: ", string(data))
+	u := GoogleUser{}
+	if err = json.Unmarshal(data, &u); err != nil {
+		c.AbortWithError(http.StatusBadRequest, err)
+		return
+	}
+
+	user, found := users.GetUserByEmail(u.Email)
+	log.Println("User found: ", found)
+	log.Println("User Email:", user.Email)
 	c.Status(http.StatusOK)
 }
 
