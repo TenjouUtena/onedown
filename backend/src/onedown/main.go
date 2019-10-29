@@ -113,8 +113,7 @@ func main() {
 			}
 		}
 	})
-	router.POST("/users/new", users.Post)
-
+	users.ConfigureHandlers(router)
 	credentials.ConfigureHandlers(router)
 
 	router.Run(":" + strconv.Itoa(cfg.Port))
