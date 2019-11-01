@@ -17,7 +17,7 @@ func InitDaemon(listen chan SessionDaemonMessage) {
 		switch typedMsg := msg.(type) {
 		case GetSessions:
 			sessionIds := make([]uuid.UUID, 0)
-			for sessionId, _:= range sessions {
+			for sessionId, _ := range sessions {
 				sessionIds = append(sessionIds, sessionId)
 			}
 			typedMsg.ResponseChannel <- sessionIds
@@ -26,17 +26,27 @@ func InitDaemon(listen chan SessionDaemonMessage) {
 			sessionId := uuid.New()
 			sessions[sessionId] = newSession
 		case MessageForSession:
-			sesh := sessions[typedMsg.SessionId]
+			sesh := sessions[typedMsg.Session]
 			if sesh != nil && sesh.initialized {
-				sesh.channel <- typedMsg.Message
+				sesh.channel <- typedMsg
 			} else {
-				//log.Error("Message sent to session not on this daemon.")
+				log.Error().Str("session", typedMsg.Session.String()).Msg("Message sent to session not on this daemon.")
+			}
+		case UserDisconnected:
+			for sessionId, session := range sessions {
+				if _, hasSolver := session.solvers[typedMsg.Solver]; hasSolver {
+					session.channel <- MessageForSession{
+						solver:               typedMsg.Solver,
+						Session:              sessionId,
+						Message:              LeaveSession{ },
+					}
+				}
 			}
 		case KillDaemon:
-			// log.Info("Killing Session Daemon.")
+			log.Info().Msg("Vanquishing the vile Session Daemon!")
 			return
 		default:
-			// log.Error("Invalid message type sent to Session Daemon.")
+			log.Error().Msg("Invalid message type sent to Session Daemon.")
 		}
 	}
 
@@ -55,6 +65,22 @@ type SpawnSession struct {
 
 type MessageForSession struct {
 	SessionDaemonMessage
-	SessionId uuid.UUID
-	Message   SessionMessage
+	solver  uuid.UUID
+	Session uuid.UUID
+	Message SessionMessage
+}
+
+func NewMessageForSession(solver uuid.UUID,
+	session uuid.UUID,
+	message SessionMessage) MessageForSession {
+	return MessageForSession{
+		solver:  solver,
+		Session: session,
+		Message: message,
+	}
+}
+
+type UserDisconnected struct {
+	SessionDaemonMessage
+	Solver uuid.UUID
 }

@@ -5,7 +5,7 @@ import (
 	"github.com/google/uuid"
 )
 
-// SolverMessage interface represents messages being sent to a solver (to be sent over websocket)
+// SolverMessage interface represents sessionMessages being sent to a solver (to be sent over websocket)
 type SolverMessage interface{}
 
 type CheckResult struct {
@@ -31,9 +31,9 @@ type SquaresUpdated struct {
 // todo: add user information when informing of a solver, instead of just UUID
 type CurrentPuzzleState struct {
 	SolverMessage
-	Solvers     []uuid.UUID          `json:"solvers"`
-	Puzzle      *puzzle.Puzzle       `json:"puzzle"`
-	PuzzleState *PuzzleState `json:"puzzleState"`
+	Solvers     []uuid.UUID    `json:"solvers"`
+	Puzzle      *puzzle.Puzzle `json:"puzzle"`
+	PuzzleState *PuzzleState   `json:"puzzleState"`
 }
 
 type SolverJoined struct {

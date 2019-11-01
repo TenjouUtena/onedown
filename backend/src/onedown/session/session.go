@@ -4,21 +4,22 @@ import (
 	"github.com/TenjouUtena/onedown/backend/src/onedown/puzzle"
 	"github.com/google/uuid"
 	"github.com/rs/zerolog/log"
+	"github.com/wangjia184/sortedset"
 )
 
 var nobody = uuid.MustParse("00000000-0000-0000-0000-000000000000")
 
 type session struct {
 	puzz        *puzzle.Puzzle
-	channel     chan SessionMessage
-	state       PuzzleState
+	channel     chan MessageForSession
+	state       *PuzzleState
 	solvers     map[uuid.UUID]*Solver
 	initialized bool
 }
 
 func doSession(sesh *session) {
 	for msg := range sesh.channel {
-		switch typedMsg := msg.(type) {
+		switch typedMsg := msg.Message.(type) {
 		case JoinSession:
 			sesh.broadcastSolverMessage(SolverJoined{
 				Solver: typedMsg.Solver.Id,
@@ -27,24 +28,24 @@ func doSession(sesh *session) {
 			typedMsg.Solver.Tell(CurrentPuzzleState{
 				Solvers:     sesh.getSolverIds(),
 				Puzzle:      sesh.puzz,
-				PuzzleState: &sesh.state,
+				PuzzleState: sesh.state,
 			})
 		case LeaveSession:
-			oldSolver := sesh.solvers[typedMsg.Solver]
+			oldSolver := sesh.solvers[msg.solver]
 			if oldSolver != nil {
 				close(oldSolver.responseChannel) // unmarshal solver
-				delete(sesh.solvers, typedMsg.Solver)
+				delete(sesh.solvers, msg.solver)
 				sesh.broadcastSolverMessage(SolverLeft{
-					Solver: typedMsg.Solver,
+					Solver: msg.solver,
 				})
 			}
 		case WriteSquare:
-			sesh.state.putAnswer(typedMsg.Solver, typedMsg.Row, typedMsg.Col, typedMsg.Answer)
+			sesh.state.putAnswer(msg.solver, typedMsg.Row, typedMsg.Col, typedMsg.Answer)
 			sesh.broadcastSolverMessage(SquareUpdated{
 				Row:      typedMsg.Row,
 				Col:      typedMsg.Col,
 				NewValue: typedMsg.Answer,
-				FilledBy: typedMsg.Solver,
+				FilledBy: msg.solver,
 			})
 		case CheckSquares:
 			ifValidIndices(typedMsg.RowIndices, typedMsg.ColIndices, func() {
@@ -71,10 +72,10 @@ func doSession(sesh *session) {
 						if sesh.state.getSquare(rowIndex, colIndex) != square {
 							sesh.state.putAnswer(nobody, rowIndex, colIndex, square)
 							updates = append(updates, SquareUpdated{
-								Row:           rowIndex,
-								Col:           colIndex,
-								NewValue:      square,
-								FilledBy:      nobody,
+								Row:      rowIndex,
+								Col:      colIndex,
+								NewValue: square,
+								FilledBy: nobody,
 							})
 						}
 					}
@@ -102,11 +103,20 @@ func ifValidIndices(rowIndices [2]int, colIndices [2]int, thenDo func()) {
 }
 
 func createSession(puzz *puzzle.Puzzle) *session {
-	channel := make(chan SessionMessage)
+	channel := make(chan MessageForSession)
+	blankState := make([][]*sortedset.SortedSet, puzz.GetRowCount())
+	for row := range blankState {
+		blankState[row] = make([]*sortedset.SortedSet, puzz.GetColCount())
+		for col := range blankState[row] {
+			blankState[row][col] = sortedset.New()
+		}
+	}
 	sessionObj := session{
 		puzz:        puzz,
 		channel:     channel,
-		state:       PuzzleState{},
+		state:       &PuzzleState{
+			filledSquares: blankState,
+		},
 		solvers:     make(map[uuid.UUID]*Solver),
 		initialized: true,
 	}
