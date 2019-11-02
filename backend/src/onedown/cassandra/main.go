@@ -34,7 +34,7 @@ func init() {
 		return
 	}
 
-	err = Session.Query("CREATE TABLE IF NOT EXISTS users (ID uuid, Email text, PRIMARY KEY(ID, email));").Exec()
+	err = Session.Query("CREATE TABLE IF NOT EXISTS users (ID uuid, Email text, Username text, PRIMARY KEY(ID, email));").Exec()
 	if err != nil {
 		log.Println(err)
 		return

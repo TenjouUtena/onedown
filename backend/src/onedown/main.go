@@ -10,11 +10,14 @@ import (
 	"strings"
 
 	"github.com/TenjouUtena/onedown/backend/src/onedown/cassandra"
+	"github.com/TenjouUtena/onedown/backend/src/onedown/credentials"
 	"github.com/TenjouUtena/onedown/backend/src/onedown/puzzle"
 	"github.com/TenjouUtena/onedown/backend/src/onedown/session"
 	"github.com/TenjouUtena/onedown/backend/src/onedown/users"
 	"github.com/gin-contrib/cors"
 	"github.com/gin-contrib/logger"
+	"github.com/gin-contrib/sessions"
+	"github.com/gin-contrib/sessions/cookie"
 	"github.com/gin-gonic/gin"
 	"github.com/rs/zerolog"
 	"github.com/rs/zerolog/log"
@@ -66,7 +69,10 @@ func main() {
 	}
 
 	initLogger(&cfg)
-	log.Info().Msg("Iniitializing OneDown server...")
+	log.Info().Msg("Initializing OneDown server...")
+
+	//Load Google Oauth Credentials
+	credentials.LoadCredentials(cfg.CredentialFile)
 
 	// set up session daemon
 	go session.InitDaemon(session.SessionDaemon)
@@ -76,6 +82,8 @@ func main() {
 
 	// Init gin server
 	router := gin.Default()
+	store := cookie.NewStore([]byte("secret"))
+	router.Use(sessions.Sessions("mysession", store))
 
 	router.Use(cors.Default()) // Needed to allow all API origins.
 	router.Use(logger.SetLogger(logger.Config{
@@ -105,7 +113,8 @@ func main() {
 			}
 		}
 	})
-	router.POST("/users/new", users.Post)
+	users.ConfigureHandlers(router)
+	credentials.ConfigureHandlers(router)
 
 	router.Run(":" + strconv.Itoa(cfg.Port))
 
