@@ -1,5 +1,8 @@
 {
-    "Port":8080
-    ,"PuzzleDirectory":"C:/puzzles"
-    ,"CredentialFile":"C:/creds.json"
+    "Port": 8080,
+    "Logfile": "C:/logs/onedown.log",
+    "LogLevel": "INFO",
+    "PuzzleSessionWriteDelayMs": 15000,
+    "CredentialFile": "C:/creds.json",
+    "CassandraHost": "127.0.0.1"
 }

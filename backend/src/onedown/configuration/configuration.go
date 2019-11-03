@@ -13,18 +13,18 @@ var config *Configuration
 
 //Configuration Struct with Configuration data
 type Configuration struct {
-	Port                    int
-	Logfile                 string
-	LogLevel                string
-	PuzzleSessionWriteDelay time.Duration
-	CredentialFile          string
-	CassandraHost           url.URL
+	Port                      int
+	Logfile                   string
+	LogLevel                  string
+	PuzzleSessionWriteDelayMs time.Duration
+	CredentialFile            string
+	CassandraHost             url.URL
 }
 
 func Get() *Configuration {
 	if config == nil {
 		configPath := flag.String("onedown-config",
-			path.Join(os.Getenv("GOPATH"), "Configuration", "Configuration.json"),
+			path.Join(os.Getenv("GOPATH"), "configuration", "configuration.json"),
 			"Path to Configuration JSON file.")
 		file, err := os.Open(*configPath)
 		if err != nil {

@@ -23,7 +23,11 @@ type session struct {
 
 func doSession(sessionId uuid.UUID, sesh *session) {
 	// on session end, always write state
-	defer sesh.writeSessionStateToCassandra(sessionId)
+	defer func(){
+		if err := sesh.writeSessionStateToCassandra(sessionId); err != nil {
+			log.Error().Err(err).Msg("Error serializing session to cassandra.")
+		}
+	}()
 	lastWrite := time.Now() // variable to track time of last write. see end of for loop for usage
 
 	// main session loop
@@ -94,11 +98,13 @@ func doSession(sessionId uuid.UUID, sesh *session) {
 		default:
 			log.Error().Msg("Invalid session message sent.")
 		}
-		if time.Now().After(lastWrite.Add(configuration.Get().PuzzleSessionWriteDelay)) {
+		if time.Now().After(lastWrite.Add(configuration.Get().PuzzleSessionWriteDelayMs)) {
 			lastWrite = time.Now()
 			go func() {
-				time.Sleep(configuration.Get().PuzzleSessionWriteDelay)
-				sesh.writeSessionStateToCassandra(sessionId)
+				time.Sleep(configuration.Get().PuzzleSessionWriteDelayMs)
+				if err := sesh.writeSessionStateToCassandra(sessionId); err != nil {
+					log.Error().Err(err).Msg("Error serializing session to cassandra.")
+				}
 			}()
 		}
 	}
@@ -141,18 +147,20 @@ func createSession(puzz *puzzle.Puzzle) (*session, uuid.UUID) {
 	return &sessionObj, sessionId
 }
 
-func (session* session) writeSessionStateToCassandra(sessionId uuid.UUID) {
+func (session* session) writeSessionStateToCassandra(sessionId uuid.UUID) error {
 	log.Debug().Str("sessionId", sessionId.String()).Msg(
 		"Serializing session data.")
 	jsonBlob, err := json.Marshal(*session)
 	if err != nil {
 		log.Error().Err(err).Str("sessionId", sessionId.String()).Msg(
 			"Failed to marshal session data for serialization.")
+		return err
 	}
-	cassandra.Session.Query("INSERT INTO puzzle_sessions VALUES (?, ?)",
+	err = cassandra.Session.Query("INSERT INTO puzzle_sessions VALUES (?, ?)",
 		sessionId,
 		jsonBlob,
-	)
+	).Exec()
+	return err
 }
 
 

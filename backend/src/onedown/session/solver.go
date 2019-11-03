@@ -10,6 +10,7 @@ import "github.com/gorilla/websocket"
 
 type Solver struct {
 	Id              uuid.UUID
+	DisplayName		string
 	responseChannel chan SolverMessage
 	socket          *websocket.Conn
 }

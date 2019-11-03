@@ -1,6 +1,9 @@
 package puzzle
 
+import "github.com/google/uuid"
+
 type Puzzle struct {
+	Id			uuid.UUID
 	squares     [][]square
 	AcrossClues map[int]*Clue
 	DownClues   map[int]*Clue
