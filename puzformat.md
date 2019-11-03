@@ -3,6 +3,9 @@
 | Checksum | 0x00 | 0x01 | 0x2 | short | overall file checksum | 
 | File Magic | 0x02 | 0x0D | 0xC | string | NUL-terminated constant string: 4143 524f 5353 2644 4f57 4e00 ("ACROSS&DOWN") |
 
+
+
+
 The following checksums are described in more detail in a separate section below.
  
 | Component | Offset | End | Length | Type | Description | 
