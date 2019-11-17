@@ -1,7 +1,7 @@
 package session
 
 import (
-	"github.com/TenjouUtena/onedown/backend/src/onedown/puzzle"
+	"github.com/TenjouUtena/onedown/backend/puzzle"
 	"github.com/google/uuid"
 	"github.com/rs/zerolog/log"
 )
@@ -35,9 +35,9 @@ func InitDaemon(listen chan SessionDaemonMessage) {
 			for sessionId, session := range sessions {
 				if _, hasSolver := session.solvers[typedMsg.Solver]; hasSolver {
 					session.channel <- MessageForSession{
-						solver:               typedMsg.Solver,
-						Session:              sessionId,
-						Message:              LeaveSession{ },
+						solver:  typedMsg.Solver,
+						Session: sessionId,
+						Message: LeaveSession{ },
 					}
 				}
 			}

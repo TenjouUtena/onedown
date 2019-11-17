@@ -3,7 +3,6 @@ package configuration
 import (
 	"encoding/json"
 	"flag"
-	"net/url"
 	"os"
 	"path"
 	"time"
@@ -18,7 +17,7 @@ type Configuration struct {
 	LogLevel                  string
 	PuzzleSessionWriteDelayMs time.Duration
 	CredentialFile            string
-	CassandraHost             url.URL
+	CassandraHost             string
 }
 
 func Get() *Configuration {

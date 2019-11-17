@@ -1,15 +1,14 @@
-package main
+package backend
 
 import (
-	"github.com/TenjouUtena/onedown/backend/src/onedown/configuration"
+	"github.com/TenjouUtena/onedown/backend/configuration"
 	"os"
 	"strconv"
 	"strings"
 
-	"github.com/TenjouUtena/onedown/backend/src/onedown/cassandra"
-	"github.com/TenjouUtena/onedown/backend/src/onedown/credentials"
-	"github.com/TenjouUtena/onedown/backend/src/onedown/session"
-	"github.com/TenjouUtena/onedown/backend/src/onedown/users"
+	"github.com/TenjouUtena/onedown/backend/credentials"
+	"github.com/TenjouUtena/onedown/backend/session"
+	"github.com/TenjouUtena/onedown/backend/users"
 	"github.com/gin-contrib/cors"
 	"github.com/gin-contrib/logger"
 	"github.com/gin-contrib/sessions"
@@ -53,8 +52,8 @@ func main() {
 	// set up session daemon
 	go session.InitDaemon(session.SessionDaemon)
 
-	cassandraSession := cassandra.Session
-	defer cassandraSession.Close()
+	//cassandraSession := cassandra.session
+	//defer cassandraSession.Close()
 
 	// Init gin server
 	router := gin.Default()

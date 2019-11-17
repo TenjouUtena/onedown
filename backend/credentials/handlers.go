@@ -9,7 +9,7 @@ import (
 	"log"
 	"net/http"
 
-	"github.com/TenjouUtena/onedown/backend/src/onedown/users"
+	"github.com/TenjouUtena/onedown/backend/users"
 	"github.com/gin-contrib/sessions"
 	"github.com/gin-gonic/gin"
 	"golang.org/x/oauth2"

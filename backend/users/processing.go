@@ -4,7 +4,7 @@ import (
 	"encoding/json"
 	"net/http"
 
-	"github.com/TenjouUtena/onedown/backend/src/onedown/cassandra"
+	"github.com/TenjouUtena/onedown/backend/cassandra"
 	"github.com/gocql/gocql"
 )
 
@@ -32,7 +32,7 @@ func jsonToUser(request *http.Request) (User, error) {
 
 func insertNewUser(user User) (User, error) {
 	user.ID = gocql.TimeUUID()
-	err := cassandra.Session.Query("INSERT INTO users (ID, email, username) VALUES(?, ?, ?);", user.ID, user.Email, user.Username).Exec()
+	err := cassandra.GetSession().Query("INSERT INTO users (ID, email, username) VALUES(?, ?, ?);", user.ID, user.Email, user.Username).Exec()
 
 	return user, err
 }
@@ -44,7 +44,7 @@ func GetUserByEmail(email string) (User, bool) {
 
 	m := map[string]interface{}{}
 	query := "SELECT id, email, username FROM users WHERE email=? LIMIT 1 ALLOW FILTERING"
-	iterable := cassandra.Session.Query(query, email).Consistency(gocql.One).Iter()
+	iterable := cassandra.GetSession().Query(query, email).Consistency(gocql.One).Iter()
 	for iterable.MapScan(m) {
 		found = true
 		user = User{
@@ -64,7 +64,7 @@ func GetUserByUUID(gocqlUUID gocql.UUID) (User, bool) {
 
 	m := map[string]interface{}{}
 	query := "SELECT id, email, username FROM users WHERE ID = ? LIMIT 1"
-	iterable := cassandra.Session.Query(query, gocqlUUID).Consistency(gocql.One).Iter()
+	iterable := cassandra.GetSession().Query(query, gocqlUUID).Consistency(gocql.One).Iter()
 	for iterable.MapScan(m) {
 		found = true
 		user = User{

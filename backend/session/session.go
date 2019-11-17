@@ -2,9 +2,9 @@ package session
 
 import (
 	"encoding/json"
-	"github.com/TenjouUtena/onedown/backend/src/onedown/cassandra"
-	"github.com/TenjouUtena/onedown/backend/src/onedown/configuration"
-	"github.com/TenjouUtena/onedown/backend/src/onedown/puzzle"
+	"github.com/TenjouUtena/onedown/backend/cassandra"
+	"github.com/TenjouUtena/onedown/backend/configuration"
+	"github.com/TenjouUtena/onedown/backend/puzzle"
 	"github.com/google/uuid"
 	"github.com/rs/zerolog/log"
 	"github.com/wangjia184/sortedset"
@@ -156,7 +156,7 @@ func (session* session) writeSessionStateToCassandra(sessionId uuid.UUID) error 
 			"Failed to marshal session data for serialization.")
 		return err
 	}
-	err = cassandra.Session.Query("INSERT INTO puzzle_sessions VALUES (?, ?)",
+	err = cassandra.GetSession().Query("INSERT INTO puzzle_sessions VALUES (?, ?)",
 		sessionId,
 		jsonBlob,
 	).Exec()

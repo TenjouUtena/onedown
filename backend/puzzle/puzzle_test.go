@@ -2,17 +2,16 @@ package puzzle_test
 
 import (
 	"encoding/json"
-	"github.com/TenjouUtena/onedown/backend/src/onedown/puzzle"
 	"os"
 	"testing"
 )
 
-func getTestPuzzle(t *testing.T) puzzle.Puzzle {
+func getTestPuzzle(t *testing.T) Puzzle {
 	file, err := os.Open("testdata/test_puzzle_1.puz")
 	if err != nil {
 		t.Fatal(err)
 	}
-	puzFile, err := puzzle.ReadPuzfile(file)
+	puzFile, err := ReadPuzfile(file)
 	if err != nil {
 		t.Fatal(err)
 	}

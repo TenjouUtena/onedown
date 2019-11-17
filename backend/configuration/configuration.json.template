@@ -1,0 +1,8 @@
+{
+    "Port": ${PORT},
+    "Logfile": ${LOGFILE_LOCATION},
+    "LogLevel": ${LOGLEVEL},
+    "PuzzleSessionWriteDelayMs": ${PUZZLE_WRITE_DELAY_MS},
+    "CredentialFile": ${CREDENTIALS_FILE},
+    "CassandraHost": ${CASSANDRA_HOST}
+}

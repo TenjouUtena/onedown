@@ -1,7 +1,7 @@
 package session
 
 import (
-	"github.com/TenjouUtena/onedown/backend/src/onedown/puzzle"
+	"github.com/TenjouUtena/onedown/backend/puzzle"
 	"github.com/google/uuid"
 )
 

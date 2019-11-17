@@ -2,7 +2,7 @@ tmp/
 server/nginx/static/
 backend/pkg/
 backend/bin/
-/backend/src/onedown/configuration/creds.json
+/backend/configuration/creds.json
 /web/static/lib.wasm
 /web/static/wasm_exec.js
 /onedown.iml
@@ -11,6 +11,6 @@ main
 backend/src/onedown/__debug_bin
 *.puz
 /.vscode/
-backend/src/onedown/configuration/configuration.development.json
+backend/configuration/configuration.development.json
 .vscode/settings.json
-backend/src/onedown/configuration/configuration.json
+backend/configuration/configuration.json

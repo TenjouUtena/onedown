@@ -5,7 +5,7 @@ import (
 	"io/ioutil"
 	"net/http"
 
-	puzzle2 "github.com/TenjouUtena/onedown/backend/src/onedown/puzzle"
+	puzzle2 "github.com/TenjouUtena/onedown/backend/puzzle"
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
 	"github.com/gorilla/websocket"
